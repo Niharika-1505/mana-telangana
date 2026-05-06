@@ -2,11 +2,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase, IssueType, Ward } from '@/lib/supabase'
 import { uploadPhoto } from '@/lib/cloudinary'
-import { getFingerprint } from '@/lib/utils'
 import Header from '@/components/shared/Header'
 import TransparencyFooter from '@/components/shared/TransparencyFooter'
 import toast from 'react-hot-toast'
-import { Camera, MapPin, Loader2, CheckCircle2 } from 'lucide-react'
+import { Camera, MapPin, Loader2, CheckCircle2, FlaskConical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function ReportPage() {
@@ -26,19 +25,27 @@ export default function ReportPage() {
   const [locating, setLocating] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [isTest, setIsTest] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     async function load() {
       const [{ data: types }, { data: wardData }] = await Promise.all([
         supabase.from('issue_types').select('*').eq('is_active', true).order('sort_order'),
-        supabase.from('wards').select('*').order('ward_number'),
+        supabase.from('wards').select('*').order('mandal_en').order('ward_number'),
       ])
       if (types) setIssueTypes(types)
       if (wardData) setWards(wardData)
     }
     load()
   }, [])
+
+  // Group wards by mandal for <optgroup>
+  const mandalGroups = wards.reduce<Record<string, Ward[]>>((acc, ward) => {
+    if (!acc[ward.mandal_en]) acc[ward.mandal_en] = []
+    acc[ward.mandal_en].push(ward)
+    return acc
+  }, {})
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -55,7 +62,6 @@ export default function ReportPage() {
       pos => {
         const { latitude, longitude } = pos.coords
         setLat(latitude); setLng(longitude)
-        // Find nearest ward
         const nearest = wards.reduce((best, w) => {
           if (!w.lat || !w.lng) return best
           const d = Math.hypot(w.lat - latitude, w.lng - longitude)
@@ -90,7 +96,8 @@ export default function ReportPage() {
         lat, lng,
         status: 'open',
         upvotes: 1,
-      })
+        is_test: isTest,
+      } as any)
 
       if (error) throw error
 
@@ -208,14 +215,19 @@ export default function ReportPage() {
             </div>
           </button>
 
+          {/* Ward dropdown grouped by mandal */}
           <select
             value={selectedWard}
             onChange={e => setSelectedWard(e.target.value)}
             className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 mb-3"
           >
             <option value="">Or select ward manually · వార్డు ఎంచుకోండి</option>
-            {wards.map(w => (
-              <option key={w.id} value={w.id}>{w.ward_name_en} — {w.mandal_en}</option>
+            {Object.entries(mandalGroups).sort(([a], [b]) => a.localeCompare(b)).map(([mandal, mandalWards]) => (
+              <optgroup key={mandal} label={mandal}>
+                {mandalWards.map(w => (
+                  <option key={w.id} value={w.id}>{w.ward_name_en}</option>
+                ))}
+              </optgroup>
             ))}
           </select>
 
@@ -251,8 +263,8 @@ export default function ReportPage() {
           </div>
         </div>
 
-        {/* Description (optional) */}
-        <div className="card p-5 mb-6">
+        {/* Description */}
+        <div className="card p-5 mb-4">
           <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
             Description (optional) · <span className="te normal-case">వివరణ</span>
           </div>
@@ -264,6 +276,23 @@ export default function ReportPage() {
             className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 placeholder-[#3d5a3d] resize-none"
           />
         </div>
+
+        {/* Test submission flag */}
+        <label className="flex items-center gap-3 card p-4 mb-6 cursor-pointer hover:border-yellow-800 transition-colors">
+          <input
+            type="checkbox"
+            checked={isTest}
+            onChange={e => setIsTest(e.target.checked)}
+            className="accent-yellow-500 w-4 h-4"
+          />
+          <div>
+            <div className="flex items-center gap-2 text-sm text-[#9ab89a]">
+              <FlaskConical size={14} className="text-yellow-400" />
+              This is a test submission
+            </div>
+            <div className="text-xs text-[#5a7a5a] mt-0.5">Test reports are hidden from the public map and can be bulk-deleted by admins</div>
+          </div>
+        </label>
 
         {/* Submit */}
         <button

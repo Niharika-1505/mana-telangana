@@ -96,6 +96,10 @@
   .live-dot {
     @apply w-2 h-2 rounded-full bg-green-400 animate-pulse;
   }
+
+  .filter-select {
+    @apply bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-green-700;
+  }
 }
 
 /* Custom scrollbar */

@@ -5,7 +5,6 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Types
 export type Report = {
   id: string
   ward_id: string
@@ -18,7 +17,11 @@ export type Report = {
   lng: number | null
   landmark: string | null
   upvotes: number
+  is_test: boolean
+  is_duplicate: boolean
+  resolution_note: string | null
   created_at: string
+  updated_at: string
   resolved_at: string | null
   wards?: Ward
   issue_types?: IssueType
@@ -48,6 +51,8 @@ export type IssueType = {
   name_te: string
   emoji: string
   description: string
+  sort_order: number
+  is_active: boolean
 }
 
 export type MlaLeaderboard = {
