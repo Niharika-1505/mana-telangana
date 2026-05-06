@@ -1,4 +1,5 @@
 'use client'
+import 'leaflet/dist/leaflet.css'
 import { useEffect, useState, useRef } from 'react'
 import { supabase, Report } from '@/lib/supabase'
 import { timeAgo, STATUS_CONFIG } from '@/lib/utils'
@@ -46,7 +47,6 @@ export default function MapView() {
 
   async function loadMap() {
     const L = (await import('leaflet')).default
-    await import('leaflet/dist/leaflet.css')
 
     if (!mapRef.current || mapInstanceRef.current) return
 
