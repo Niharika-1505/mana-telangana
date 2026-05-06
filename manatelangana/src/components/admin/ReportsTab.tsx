@@ -32,7 +32,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   const [bulkStatus, setBulkStatus] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const mandals = useMemo(() => [...new Set(wards.map(w => w.mandal_en))].sort(), [wards])
+  const mandals = useMemo(() => Array.from(new Set(wards.map(w => w.mandal_en))).sort(), [wards])
 
   useEffect(() => {
     let cancelled = false
@@ -140,7 +140,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   async function bulkDelete() {
     if (selectedIds.size === 0) return
     if (!window.confirm(`Permanently delete ${selectedIds.size} report(s)?`)) return
-    const { error } = await supabase.from('reports').delete().in('id', [...selectedIds])
+    const { error } = await supabase.from('reports').delete().in('id', Array.from(selectedIds))
     if (error) toast.error('Bulk delete failed')
     else { toast.success(`${selectedIds.size} reports deleted`); setSelectedIds(new Set()); setRefreshKey(k => k + 1) }
   }
@@ -151,7 +151,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
       status: bulkStatus,
       resolved_at: bulkStatus === 'resolved' ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
-    }).in('id', [...selectedIds])
+    }).in('id', Array.from(selectedIds))
     if (error) toast.error('Bulk update failed')
     else {
       toast.success(`${selectedIds.size} reports → ${bulkStatus}`)
