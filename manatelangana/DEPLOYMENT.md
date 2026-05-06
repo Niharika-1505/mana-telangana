@@ -59,11 +59,11 @@ Add each of these:
 
 | Variable Name | Value |
 |--------------|-------|
-| NEXT_PUBLIC_SUPABASE_URL | https://vkrlzxemdloojmltupei.supabase.co |
-| NEXT_PUBLIC_SUPABASE_ANON_KEY | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrcmx6eGVtZGxvb2ptbHR1cGVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwODQ3NTIsImV4cCI6MjA5MzY2MDc1Mn0.yp8uSRIrFC_01tDauWW5DrxnbTqJ1hNKGy-prCp6GGM |
-| NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME | ds0tvr3ib |
-| NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET | mana-telangana-uploads |
-| NEXT_PUBLIC_ADMIN_PASSWORD | ManaTelangana@2026 |
+| NEXT_PUBLIC_SUPABASE_URL |  |
+| NEXT_PUBLIC_SUPABASE_ANON_KEY |  |
+| NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME |  |
+| NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET | |
+| NEXT_PUBLIC_ADMIN_PASSWORD | |
 
 5. Click "Deploy"
 6. Wait 2-3 minutes — Vercel builds and deploys automatically
