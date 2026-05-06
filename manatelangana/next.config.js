@@ -1,19 +1,9 @@
-/** @type {import('next').NextConfig} */
+const path = require('path')
 const nextConfig = {
-  images: {
-    domains: ['res.cloudinary.com'],
-  },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-        ],
-      },
-    ]
+  images: { domains: ['res.cloudinary.com'] },
+  webpack: (config) => {
+    config.resolve.alias['@'] = path.resolve(__dirname, 'src')
+    return config
   },
 }
-
 module.exports = nextConfig
