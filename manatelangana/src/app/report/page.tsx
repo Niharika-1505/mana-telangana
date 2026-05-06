@@ -1,0 +1,285 @@
+'use client'
+import { useState, useEffect, useRef } from 'react'
+import { supabase, IssueType, Ward } from '@/lib/supabase'
+import { uploadPhoto } from '@/lib/cloudinary'
+import { getFingerprint } from '@/lib/utils'
+import Header from '@/components/shared/Header'
+import TransparencyFooter from '@/components/shared/TransparencyFooter'
+import toast from 'react-hot-toast'
+import { Camera, MapPin, Loader2, CheckCircle2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+
+export default function ReportPage() {
+  const router = useRouter()
+  const [issueTypes, setIssueTypes] = useState<IssueType[]>([])
+  const [wards, setWards] = useState<Ward[]>([])
+  const [selectedIssue, setSelectedIssue] = useState<string>('')
+  const [selectedWard, setSelectedWard] = useState<string>('')
+  const [severity, setSeverity] = useState<'low' | 'medium' | 'high'>('medium')
+  const [photo, setPhoto] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string>('')
+  const [landmark, setLandmark] = useState('')
+  const [description, setDescription] = useState('')
+  const [lat, setLat] = useState<number | null>(null)
+  const [lng, setLng] = useState<number | null>(null)
+  const [detectedWard, setDetectedWard] = useState<Ward | null>(null)
+  const [locating, setLocating] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    async function load() {
+      const [{ data: types }, { data: wardData }] = await Promise.all([
+        supabase.from('issue_types').select('*').eq('is_active', true).order('sort_order'),
+        supabase.from('wards').select('*').order('ward_number'),
+      ])
+      if (types) setIssueTypes(types)
+      if (wardData) setWards(wardData)
+    }
+    load()
+  }, [])
+
+  function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) { toast.error('Photo must be under 10MB'); return }
+    setPhoto(file)
+    setPhotoPreview(URL.createObjectURL(file))
+  }
+
+  function detectLocation() {
+    if (!navigator.geolocation) { toast.error('Geolocation not supported'); return }
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const { latitude, longitude } = pos.coords
+        setLat(latitude); setLng(longitude)
+        // Find nearest ward
+        const nearest = wards.reduce((best, w) => {
+          if (!w.lat || !w.lng) return best
+          const d = Math.hypot(w.lat - latitude, w.lng - longitude)
+          return !best || d < Math.hypot((best.lat || 0) - latitude, (best.lng || 0) - longitude) ? w : best
+        }, null as Ward | null)
+        if (nearest) { setDetectedWard(nearest); setSelectedWard(nearest.id) }
+        setLocating(false)
+        toast.success('Location detected!')
+      },
+      () => { toast.error('Could not get location. Please select ward manually.'); setLocating(false) }
+    )
+  }
+
+  async function handleSubmit() {
+    if (!selectedIssue) { toast.error('Please select an issue type'); return }
+    if (!selectedWard && !detectedWard) { toast.error('Please select or detect your location'); return }
+    if (!photo) { toast.error('Please add a photo as evidence'); return }
+
+    setSubmitting(true)
+    try {
+      const reportId = crypto.randomUUID()
+      const photoUrl = await uploadPhoto(photo, reportId)
+
+      const { error } = await supabase.from('reports').insert({
+        id: reportId,
+        ward_id: selectedWard || detectedWard?.id,
+        issue_type_id: selectedIssue,
+        severity,
+        photo_url: photoUrl,
+        description,
+        landmark,
+        lat, lng,
+        status: 'open',
+        upvotes: 1,
+      })
+
+      if (error) throw error
+
+      setSubmitted(true)
+      toast.success('Report submitted! నివేదిక సమర్పించబడింది')
+      setTimeout(() => router.push('/'), 2500)
+    } catch (err) {
+      console.error(err)
+      toast.error('Submission failed. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (submitted) {
+    return (
+      <>
+        <Header />
+        <main className="max-w-xl mx-auto px-4 py-20 text-center">
+          <CheckCircle2 className="mx-auto text-green-400 mb-4" size={64} />
+          <h1 className="text-2xl font-bold text-green-400 mb-2">Report Submitted!</h1>
+          <p className="te text-lg text-[#9ab89a] mb-2">నివేదిక సమర్పించబడింది</p>
+          <p className="text-sm text-[#5a7a5a]">Your MLA has been notified. Redirecting to map...</p>
+        </main>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="max-w-xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-[#e8f5e8] mb-1">Report a Civic Issue</h1>
+        <p className="te text-base text-[#5a7a5a] mb-8">సమస్యను నివేదించండి · Anonymous · No login needed</p>
+
+        {/* Issue Type */}
+        <div className="card p-5 mb-4">
+          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+            Issue Type · <span className="te normal-case">సమస్య రకం</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {issueTypes.map(type => (
+              <button
+                key={type.id}
+                onClick={() => setSelectedIssue(type.id)}
+                className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all
+                  ${selectedIssue === type.id
+                    ? 'border-green-500 bg-green-400/8 text-green-400'
+                    : 'border-[#2d442d] bg-[#1e2e1e] text-[#9ab89a] hover:border-green-900'
+                  }`}
+              >
+                <span className="text-xl">{type.emoji}</span>
+                <div>
+                  <div className="text-sm font-medium">{type.name_en}</div>
+                  <div className="te text-xs opacity-60">{type.name_te}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Photo */}
+        <div className="card p-5 mb-4">
+          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+            Photo Evidence · <span className="te normal-case">ఫోటో నిదర్శనం</span>
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
+          {photoPreview ? (
+            <div className="relative">
+              <img src={photoPreview} alt="Preview" className="w-full h-48 object-cover rounded-xl" />
+              <button
+                onClick={() => { setPhoto(null); setPhotoPreview('') }}
+                className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg"
+              >Remove</button>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="w-full border-2 border-dashed border-[#2d442d] rounded-xl p-8 text-center hover:border-green-800 transition-colors"
+            >
+              <Camera className="mx-auto text-[#5a7a5a] mb-2" size={32} />
+              <div className="text-sm text-[#9ab89a]">Tap to take photo or upload</div>
+              <div className="te text-xs text-[#5a7a5a] mt-1">ఫోటో తీయండి లేదా అప్లోడ్ చేయండి</div>
+            </button>
+          )}
+        </div>
+
+        {/* Location */}
+        <div className="card p-5 mb-4">
+          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+            Location · <span className="te normal-case">స్థానం</span>
+          </div>
+          <button
+            onClick={detectLocation}
+            disabled={locating}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all mb-3
+              ${detectedWard
+                ? 'border-green-700 bg-green-400/8'
+                : 'border-[#2d442d] bg-[#1e2e1e] hover:border-green-900'
+              }`}
+          >
+            {locating ? <Loader2 size={20} className="text-green-400 animate-spin" /> : <MapPin size={20} className="text-green-400" />}
+            <div className="text-left flex-1">
+              {detectedWard ? (
+                <>
+                  <div className="text-sm font-medium text-green-400">{detectedWard.ward_name_en}</div>
+                  <div className="text-xs text-[#9ab89a]">MLA: {detectedWard.mla_name} · MP: {detectedWard.mp_name}</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-sm text-[#9ab89a]">{locating ? 'Detecting...' : 'Auto-detect my location'}</div>
+                  <div className="te text-xs text-[#5a7a5a]">నా స్థానాన్ని స్వయంచాలకంగా గుర్తించు</div>
+                </>
+              )}
+            </div>
+          </button>
+
+          <select
+            value={selectedWard}
+            onChange={e => setSelectedWard(e.target.value)}
+            className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 mb-3"
+          >
+            <option value="">Or select ward manually · వార్డు ఎంచుకోండి</option>
+            {wards.map(w => (
+              <option key={w.id} value={w.id}>{w.ward_name_en} — {w.mandal_en}</option>
+            ))}
+          </select>
+
+          <input
+            value={landmark}
+            onChange={e => setLandmark(e.target.value)}
+            placeholder="Landmark (e.g. Near Nalgonda Bus Stand) · సమీప ప్రదేశం"
+            className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 placeholder-[#3d5a3d]"
+          />
+        </div>
+
+        {/* Severity */}
+        <div className="card p-5 mb-4">
+          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+            Severity · <span className="te normal-case">తీవ్రత</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {(['low', 'medium', 'high'] as const).map(s => (
+              <button
+                key={s}
+                onClick={() => setSeverity(s)}
+                className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all capitalize
+                  ${severity === s
+                    ? s === 'low' ? 'border-green-500 bg-green-400/10 text-green-400'
+                      : s === 'medium' ? 'border-amber-500 bg-amber-400/10 text-amber-400'
+                      : 'border-red-500 bg-red-400/10 text-red-400'
+                    : 'border-[#2d442d] bg-[#1e2e1e] text-[#5a7a5a] hover:border-[#3d5a3d]'
+                  }`}
+              >
+                {s === 'low' ? '🟢' : s === 'medium' ? '🟡' : '🔴'} {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Description (optional) */}
+        <div className="card p-5 mb-6">
+          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+            Description (optional) · <span className="te normal-case">వివరణ</span>
+          </div>
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder="Any additional details... · అదనపు వివరాలు"
+            rows={3}
+            className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 placeholder-[#3d5a3d] resize-none"
+          />
+        </div>
+
+        {/* Submit */}
+        <button
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2"
+        >
+          {submitting ? <Loader2 size={18} className="animate-spin" /> : '📤'}
+          {submitting ? 'Submitting...' : 'Submit Report · నివేదించు'}
+        </button>
+
+        <p className="text-center text-xs text-[#3d5a3d] mt-3">
+          🔒 Anonymous · No account needed · <span className="te">డేటా సురక్షితం</span>
+        </p>
+      </main>
+      <TransparencyFooter />
+    </>
+  )
+}

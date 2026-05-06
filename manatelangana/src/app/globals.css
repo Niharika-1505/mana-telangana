@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg:        #0f1a0f;
+    --bg2:       #162016;
+    --bg3:       #1e2e1e;
+    --card:      #1a271a;
+    --border:    #2d442d;
+    --green:     #4ade80;
+    --green2:    #22c55e;
+    --green-dim: #166534;
+    --amber:     #fbbf24;
+    --red:       #f87171;
+    --blue:      #60a5fa;
+    --purple:    #a78bfa;
+    --text:      #e8f5e8;
+    --text2:     #9ab89a;
+    --text3:     #5a7a5a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  /* Leaflet map fixes */
+  .leaflet-container {
+    background: #162216 !important;
+    font-family: 'DM Sans', sans-serif !important;
+  }
+
+  .leaflet-popup-content-wrapper {
+    background: #1a271a !important;
+    border: 1px solid #2d442d !important;
+    color: #e8f5e8 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+  }
+
+  .leaflet-popup-tip {
+    background: #1a271a !important;
+  }
+
+  .leaflet-control-zoom a {
+    background: #1a271a !important;
+    color: #4ade80 !important;
+    border-color: #2d442d !important;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background: #2d442d !important;
+  }
+}
+
+@layer components {
+  .font-telugu {
+    font-family: 'Noto Sans Telugu', sans-serif;
+  }
+
+  .card {
+    @apply bg-[#1a271a] border border-[#2d442d] rounded-xl;
+  }
+
+  .btn-primary {
+    @apply bg-green-400 text-gray-950 font-bold px-5 py-2.5 rounded-lg
+           hover:bg-green-500 transition-all duration-200 hover:-translate-y-0.5
+           active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-[#1e2e1e] border border-[#2d442d] text-gray-300 font-medium px-5 py-2.5 rounded-lg
+           hover:border-green-800 transition-all duration-200;
+  }
+
+  .stat-card {
+    @apply card p-4 text-center;
+  }
+
+  .stat-num {
+    @apply font-mono text-3xl font-bold text-green-400 leading-none;
+  }
+
+  .stat-label {
+    @apply text-xs text-[#5a7a5a] mt-1.5 uppercase tracking-widest;
+  }
+
+  .issue-tag {
+    @apply text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wide;
+  }
+
+  .live-dot {
+    @apply w-2 h-2 rounded-full bg-green-400 animate-pulse;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #162016; }
+::-webkit-scrollbar-thumb { background: #2d442d; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3d5a3d; }
+
+/* Telugu font utility */
+.te { font-family: 'Noto Sans Telugu', sans-serif; }
+
+/* Smooth page transitions */
+main { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

@@ -1,0 +1,24 @@
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!
+
+export async function uploadPhoto(file: File, reportId: string): Promise<string> {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', UPLOAD_PRESET)
+  formData.append('folder', `mana-telangana/reports`)
+  formData.append('public_id', `report_${reportId}_${Date.now()}`)
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    { method: 'POST', body: formData }
+  )
+
+  if (!res.ok) throw new Error('Photo upload failed')
+  const data = await res.json()
+  return data.secure_url
+}
+
+export function getOptimizedUrl(url: string, width = 800): string {
+  if (!url.includes('cloudinary.com')) return url
+  return url.replace('/upload/', `/upload/w_${width},q_auto,f_auto/`)
+}
