@@ -80,7 +80,7 @@ export default function CoveragePage() {
         supabase.from('ward_contributions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
       ])
 
-      const unique = [...new Set((wardDistricts || []).map((w: any) => w.district).filter(Boolean))].sort()
+      const unique = Array.from(new Set((wardDistricts || []).map((w: any) => w.district).filter(Boolean))).sort()
       setDistricts(unique.length > 0 ? unique : TELANGANA_DISTRICTS)
 
       setStats({
