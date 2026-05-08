@@ -6,9 +6,13 @@ import ReportsTab from '@/components/admin/ReportsTab'
 import WardsTab from '@/components/admin/WardsTab'
 import IssueTypesTab from '@/components/admin/IssueTypesTab'
 import VolunteersTab from '@/components/admin/VolunteersTab'
-import { BarChart3, Map, Tag, LogOut, Loader2, Heart } from 'lucide-react'
+import MpsTab from '@/components/admin/MpsTab'
+import MlasTab from '@/components/admin/MlasTab'
+import WardMembersTab from '@/components/admin/WardMembersTab'
+import ContributionsTab from '@/components/admin/ContributionsTab'
+import { BarChart3, Map, Tag, LogOut, Loader2, Heart, Landmark, Users, MapPin, GitPullRequest } from 'lucide-react'
 
-type Tab = 'reports' | 'wards' | 'issues' | 'volunteers'
+type Tab = 'reports' | 'wards' | 'issues' | 'volunteers' | 'mps' | 'mlas' | 'ward_members' | 'contributions'
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
@@ -94,10 +98,14 @@ export default function AdminPage() {
   }
 
   const tabs: { id: Tab; label: string; icon: JSX.Element }[] = [
-    { id: 'reports',    label: 'Reports',     icon: <BarChart3 size={16} /> },
-    { id: 'wards',      label: 'Wards',       icon: <Map size={16} /> },
-    { id: 'issues',     label: 'Issue Types', icon: <Tag size={16} /> },
-    { id: 'volunteers', label: 'Volunteers',  icon: <Heart size={16} /> },
+    { id: 'reports',      label: 'Reports',       icon: <BarChart3 size={16} /> },
+    { id: 'wards',        label: 'Wards',         icon: <Map size={16} /> },
+    { id: 'ward_members', label: 'Ward Members',  icon: <MapPin size={16} /> },
+    { id: 'issues',       label: 'Issue Types',   icon: <Tag size={16} /> },
+    { id: 'volunteers',   label: 'Volunteers',    icon: <Heart size={16} /> },
+    { id: 'mlas',         label: 'MLAs',          icon: <Landmark size={16} /> },
+    { id: 'mps',          label: 'MPs',           icon: <Users size={16} /> },
+    { id: 'contributions',label: 'Contributions', icon: <GitPullRequest size={16} /> },
   ]
 
   return (
@@ -134,10 +142,14 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {activeTab === 'reports'    && <ReportsTab wards={wards} issueTypes={issueTypes} />}
-        {activeTab === 'wards'      && <WardsTab />}
-        {activeTab === 'issues'     && <IssueTypesTab />}
-        {activeTab === 'volunteers' && <VolunteersTab />}
+        {activeTab === 'reports'       && <ReportsTab wards={wards} issueTypes={issueTypes} />}
+        {activeTab === 'wards'         && <WardsTab />}
+        {activeTab === 'ward_members'  && <WardMembersTab />}
+        {activeTab === 'issues'        && <IssueTypesTab />}
+        {activeTab === 'volunteers'    && <VolunteersTab />}
+        {activeTab === 'mlas'          && <MlasTab />}
+        {activeTab === 'mps'           && <MpsTab />}
+        {activeTab === 'contributions' && <ContributionsTab />}
       </main>
     </>
   )
