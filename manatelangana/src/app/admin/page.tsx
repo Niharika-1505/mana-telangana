@@ -5,9 +5,10 @@ import Header from '@/components/shared/Header'
 import ReportsTab from '@/components/admin/ReportsTab'
 import WardsTab from '@/components/admin/WardsTab'
 import IssueTypesTab from '@/components/admin/IssueTypesTab'
-import { BarChart3, Map, Tag, LogOut, Loader2 } from 'lucide-react'
+import VolunteersTab from '@/components/admin/VolunteersTab'
+import { BarChart3, Map, Tag, LogOut, Loader2, Heart } from 'lucide-react'
 
-type Tab = 'reports' | 'wards' | 'issues'
+type Tab = 'reports' | 'wards' | 'issues' | 'volunteers'
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
@@ -93,9 +94,10 @@ export default function AdminPage() {
   }
 
   const tabs: { id: Tab; label: string; icon: JSX.Element }[] = [
-    { id: 'reports', label: 'Reports',     icon: <BarChart3 size={16} /> },
-    { id: 'wards',   label: 'Wards',       icon: <Map size={16} /> },
-    { id: 'issues',  label: 'Issue Types', icon: <Tag size={16} /> },
+    { id: 'reports',    label: 'Reports',     icon: <BarChart3 size={16} /> },
+    { id: 'wards',      label: 'Wards',       icon: <Map size={16} /> },
+    { id: 'issues',     label: 'Issue Types', icon: <Tag size={16} /> },
+    { id: 'volunteers', label: 'Volunteers',  icon: <Heart size={16} /> },
   ]
 
   return (
@@ -132,9 +134,10 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {activeTab === 'reports' && <ReportsTab wards={wards} issueTypes={issueTypes} />}
-        {activeTab === 'wards'   && <WardsTab />}
-        {activeTab === 'issues'  && <IssueTypesTab />}
+        {activeTab === 'reports'    && <ReportsTab wards={wards} issueTypes={issueTypes} />}
+        {activeTab === 'wards'      && <WardsTab />}
+        {activeTab === 'issues'     && <IssueTypesTab />}
+        {activeTab === 'volunteers' && <VolunteersTab />}
       </main>
     </>
   )

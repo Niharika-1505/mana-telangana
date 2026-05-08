@@ -103,3 +103,16 @@ export type PlatformCost = {
   annual_paise: number
   notes: string
 }
+
+export type Volunteer = {
+  id: string
+  name: string
+  email: string
+  phone: string | null
+  roles: string[]
+  area: string | null
+  message: string | null
+  status: 'new' | 'contacted' | 'active' | 'inactive'
+  notes: string | null
+  created_at: string
+}

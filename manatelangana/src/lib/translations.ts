@@ -5,6 +5,8 @@ const translations = {
   nav_map:         { en: 'Map',         te: 'నక్ష',             hi: 'नक्शा' },
   nav_leaderboard: { en: 'Leaderboard', te: 'జవాబుదారీతనం',    hi: 'जवाबदेही' },
   nav_report:      { en: 'Report',      te: 'నివేదించు',        hi: 'रिपोर्ट' },
+  nav_faq:         { en: 'FAQ',         te: 'సహాయం',            hi: 'सहायता' },
+  nav_join:        { en: 'Join Us',     te: 'చేరండి',           hi: 'जुड़ें' },
 
   // StatsBar
   stats_total:      { en: 'Total Reports', te: 'మొత్తం నివేదికలు',   hi: 'कुल रिपोर्टें' },
@@ -144,6 +146,21 @@ const translations = {
   verify_say_fixed:      { en: 'say fixed',                                te: 'పరిష్కరించబడింది అన్నారు',                  hi: 'ने ठीक बताया' },
   verify_say_broken:     { en: 'say still broken',                         te: 'ఇంకా పరిష్కరించబడలేదు అన్నారు',            hi: 'ने अभी भी खराब बताया' },
   verify_none:           { en: 'No verifications yet — be the first',      te: 'ఇంకా ధృవీకరణలు లేవు — మొదటిగా ధృవీకరించండి', hi: 'अभी कोई सत्यापन नहीं — पहले बनें' },
+
+  // Join / volunteer page
+  join_title:        { en: 'Join the Movement',                            te: 'ఉద్యమంలో చేరండి',                          hi: 'आंदोलन से जुड़ें' },
+  join_subtitle:     { en: 'Help make Nalgonda a better place to live. We will reach out when we need your help.', te: 'నల్గొండను మెరుగైన నివాస స్థలంగా తయారు చేయడంలో సహాయపడండి.', hi: 'नलगोंडा को बेहतर बनाने में मदद करें।' },
+  join_name:         { en: 'Your Name',                                    te: 'మీ పేరు',                                   hi: 'आपका नाम' },
+  join_email:        { en: 'Email Address',                                te: 'ఇమెయిల్ చిరునామా',                          hi: 'ईमेल पता' },
+  join_phone:        { en: 'Phone Number (optional)',                      te: 'ఫోన్ నంబర్ (ఐచ్ఛికం)',                      hi: 'फोन नंबर (वैकल्पिक)' },
+  join_area:         { en: 'Your Ward / Area (optional)',                  te: 'మీ వార్డు / ప్రాంతం (ఐచ్ఛికం)',             hi: 'आपका वार्ड / क्षेत्र (वैकल्पिक)' },
+  join_message:      { en: 'Tell us more about yourself (optional)',       te: 'మీ గురించి మరింత చెప్పండి (ఐచ్ఛికం)',      hi: 'अपने बारे में और बताएं (वैकल्पिक)' },
+  join_role_label:   { en: 'I want to contribute as',                     te: 'నేను ఇలా సహాయం చేయాలనుకుంటున్నాను',        hi: 'मैं इस रूप में योगदान देना चाहता हूं' },
+  join_submit:       { en: 'Submit Interest',                              te: 'ఆసక్తిని నమోదు చేయండి',                     hi: 'रुचि दर्ज करें' },
+  join_submitting:   { en: 'Submitting...',                                te: 'సమర్పిస్తోంది...',                           hi: 'सबमिट हो रहा है...' },
+  join_done_title:   { en: 'Thank you for stepping up!',                  te: 'ముందుకు వచ్చినందుకు ధన్యవాదాలు!',           hi: 'आगे आने के लिए धन्यवाद!' },
+  join_done_msg:     { en: "We have noted your interest. We'll reach out when we need your help. This platform is stronger because of people like you.", te: 'మీ ఆసక్తిని నమోదు చేసాం. మేము సహాయం కోసం సంప్రదిస్తాం.', hi: 'हमने आपकी रुचि दर्ज कर ली है। जरूरत पड़ने पर संपर्क करेंगे।' },
+  join_back:         { en: 'Back to Map',                                  te: 'మ్యాప్‌కు తిరిగి వెళ్ళండి',                hi: 'नक्शे पर वापस जाएं' },
 }
 
 export const T = translations
