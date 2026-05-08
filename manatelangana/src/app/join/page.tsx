@@ -4,7 +4,8 @@ import Header from '@/components/shared/Header'
 import TransparencyFooter from '@/components/shared/TransparencyFooter'
 import { supabase } from '@/lib/supabase'
 import { useLang } from '@/lib/i18n'
-import { Loader2, CheckCircle2, Heart, Database, Users, Code2, Palette, BarChart3, Handshake, HelpCircle } from 'lucide-react'
+import { Loader2, CheckCircle2, Heart, Database, Users, Code2, Palette, BarChart3, Handshake, HelpCircle, Map } from 'lucide-react'
+import CoverageTable from '@/components/CoverageTable'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 
@@ -98,6 +99,25 @@ export default function JoinPage() {
           <p className={`text-sm text-slate-500 leading-relaxed ${lang === 'te' ? 'te' : ''}`}>
             {t('join_subtitle')}
           </p>
+        </div>
+
+        {/* What's already mapped */}
+        <div className="card p-5 mb-6">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+            <Map size={13} /> What's already mapped
+          </div>
+          <p className="text-sm text-slate-500 mb-4">
+            See what ward data we already have and what areas need help most.
+          </p>
+          <CoverageTable compact showContributeButton={false} />
+          <div className="flex flex-wrap gap-3 mt-4">
+            <Link href="/coverage" className="btn-secondary text-xs px-4 py-2">
+              View Full Coverage →
+            </Link>
+            <Link href="/coverage#contribute" className="btn-primary text-xs px-4 py-2">
+              Contribute Ward Data →
+            </Link>
+          </div>
         </div>
 
         {/* Role selection */}

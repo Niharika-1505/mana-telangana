@@ -14,7 +14,7 @@ export default function HomePage() {
       {/* Beta banner — remove once ward data is loaded and app is fully live */}
       <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-xs text-amber-700">
         🚧 Beta — Ward data is still being added. Some features may be incomplete. &nbsp;
-        <Link href="/join" className="underline font-semibold hover:text-amber-900 transition-colors">
+        <Link href="/coverage#contribute" className="underline font-semibold hover:text-amber-900 transition-colors">
           Want to help?
         </Link>
       </div>
