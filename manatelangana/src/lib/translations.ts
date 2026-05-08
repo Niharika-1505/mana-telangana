@@ -45,7 +45,7 @@ const translations = {
   report_detect:        { en: 'Auto-detect my location',            te: 'నా స్థానాన్ని స్వయంచాలకంగా గుర్తించు', hi: 'मेरी स्थान स्वतः पहचानें' },
   report_detecting:     { en: 'Detecting...',                       te: 'గుర్తిస్తోంది...',                        hi: 'पहचान रहे हैं...' },
   report_select_ward:   { en: 'Or select ward manually',            te: 'లేదా వార్డు ఎంచుకోండి',                  hi: 'या वार्ड चुनें' },
-  report_landmark_ph:   { en: 'Landmark (e.g. Near Nalgonda Bus Stand)', te: 'సమీప ప్రదేశం (ఉ.దా. బస్ స్టాండ్ దగ్గర)', hi: 'स्थलचिह्न (जैसे नलगोंडा बस स्टैंड के पास)' },
+  report_landmark_ph:   { en: 'Landmark (e.g. Near Bus Stand)', te: 'సమీప ప్రదేశం (ఉ.దా. బస్ స్టాండ్ దగ్గర)', hi: 'स्थलचिह्न (जैसे बस स्टैंड के पास)' },
   report_severity:      { en: 'Severity',                           te: 'తీవ్రత',                                  hi: 'गंभीरता' },
   report_sev_low:       { en: 'Low',                                te: 'తక్కువ',                                  hi: 'कम' },
   report_sev_medium:    { en: 'Medium',                             te: 'మధ్యమ',                                   hi: 'मध्यम' },
@@ -66,7 +66,7 @@ const translations = {
   lb_title:        { en: 'MLA Accountability Leaderboard',          te: 'ఎమ్మెల్యే జవాబుదారీతనం పట్టిక',      hi: 'विधायक जवाबदेही रैंकिंग' },
   lb_subtitle:     { en: 'How fast are issues being resolved?',     te: 'సమస్యలు ఎంత వేగంగా పరిష్కరిస్తున్నారు?', hi: 'समस्याएं कितनी जल्दी हल होती हैं?' },
   lb_updated:      { en: 'Updated live',                            te: 'నిరంతరం నవీకరించబడుతోంది',            hi: 'लाइव अपडेट' },
-  lb_district:     { en: 'Nalgonda District · 2026',               te: 'నల్గొండ జిల్లా · 2026',              hi: 'नलगोंडा जिला · 2026' },
+  lb_district:     { en: 'Telangana · 2026',                        te: 'తెలంగాణ · 2026',                     hi: 'तेलंगाना · 2026' },
   lb_good:         { en: 'Score ≥ 70% — Good',                     te: 'స్కోర్ ≥ 70% — మంచి',               hi: 'स्कोर ≥ 70% — अच्छा' },
   lb_moderate:     { en: 'Score 40–70% — Moderate',                te: 'స్కోర్ 40–70% — మధ్యమ',             hi: 'स्कोर 40–70% — ठीक' },
   lb_poor:         { en: 'Score < 40% — Needs attention',          te: 'స్కోర్ < 40% — దృష్టి అవసరం',       hi: 'स्कोर < 40% — ध्यान चाहिए' },
@@ -149,7 +149,7 @@ const translations = {
 
   // Join / volunteer page
   join_title:        { en: 'Join the Movement',                            te: 'ఉద్యమంలో చేరండి',                          hi: 'आंदोलन से जुड़ें' },
-  join_subtitle:     { en: 'Help make Nalgonda a better place to live. We will reach out when we need your help.', te: 'నల్గొండను మెరుగైన నివాస స్థలంగా తయారు చేయడంలో సహాయపడండి.', hi: 'नलगोंडा को बेहतर बनाने में मदद करें।' },
+  join_subtitle:     { en: 'Help make Telangana a better place to live. We will reach out when we need your help.', te: 'తెలంగాణను మెరుగైన నివాస స్థలంగా తయారు చేయడంలో సహాయపడండి.', hi: 'तेलंगाना को बेहतर बनाने में मदद करें।' },
   join_name:         { en: 'Your Name',                                    te: 'మీ పేరు',                                   hi: 'आपका नाम' },
   join_email:        { en: 'Email Address',                                te: 'ఇమెయిల్ చిరునామా',                          hi: 'ईमेल पता' },
   join_phone:        { en: 'Phone Number (optional)',                      te: 'ఫోన్ నంబర్ (ఐచ్ఛికం)',                      hi: 'फोन नंबर (वैकल्पिक)' },
