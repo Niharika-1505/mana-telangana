@@ -87,11 +87,13 @@ export default function ReportPage() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: types }, { data: wardData }] = await Promise.all([
-        supabase.from('issue_types').select('*').eq('is_active', true).order('sort_order'),
+      const [{ data: types, error: typesErr }, { data: wardData, error: wardsErr }] = await Promise.all([
+        supabase.from('issue_types').select('*').order('sort_order'),
         supabase.from('wards').select('*').order('mandal_en').order('ward_number'),
       ])
-      if (types) setIssueTypes(types)
+      if (typesErr) console.error('issue_types load error:', typesErr)
+      if (wardsErr) console.error('wards load error:', wardsErr)
+      if (types) setIssueTypes(types.filter(t => t.is_active !== false))
       if (wardData) setWards(wardData)
     }
     load()
