@@ -28,16 +28,16 @@ export default function StatsBar() {
   }, [])
 
   const cards = [
-    { num: stats.total,      labelKey: 'stats_total'      as const, color: 'text-green-400' },
-    { num: stats.open,       labelKey: 'stats_open'       as const, color: 'text-red-400' },
-    { num: stats.resolved,   labelKey: 'stats_resolved'   as const, color: 'text-green-400' },
-    { num: stats.inProgress, labelKey: 'stats_inprogress' as const, color: 'text-amber-400' },
+    { num: stats.total,      labelKey: 'stats_total'      as const, color: 'text-green-700' },
+    { num: stats.open,       labelKey: 'stats_open'       as const, color: 'text-red-500' },
+    { num: stats.resolved,   labelKey: 'stats_resolved'   as const, color: 'text-green-600' },
+    { num: stats.inProgress, labelKey: 'stats_inprogress' as const, color: 'text-amber-500' },
   ]
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {cards.map(({ num, labelKey, color }) => (
-        <div key={labelKey} className="stat-card hover:border-green-800 transition-colors">
+        <div key={labelKey} className="stat-card hover:border-green-300 transition-colors">
           <div className={`stat-num ${color}`}>{num}</div>
           <div className="stat-label">{t(labelKey)}</div>
         </div>

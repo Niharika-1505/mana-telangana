@@ -101,7 +101,6 @@ export default function ReportPage() {
       } as any)
 
       if (error) throw error
-
       setSubmitted(true)
       toast.success('Report submitted!')
       setTimeout(() => router.push('/'), 2500)
@@ -127,19 +126,19 @@ export default function ReportPage() {
   }
 
   const severityKeys = {
-    low: 'report_sev_low',
-    medium: 'report_sev_medium',
-    high: 'report_sev_high',
+    low: 'report_sev_low', medium: 'report_sev_medium', high: 'report_sev_high',
   } as const
+
+  const inputCls = 'w-full bg-white border border-slate-200 text-slate-800 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 placeholder-slate-300'
 
   if (submitted) {
     return (
       <>
         <Header />
         <main className="max-w-xl mx-auto px-4 py-20 text-center">
-          <CheckCircle2 className="mx-auto text-green-400 mb-4" size={64} />
-          <h1 className={`text-2xl font-bold text-green-400 mb-2 ${lang === 'te' ? 'te' : ''}`}>{t('report_done_title')}</h1>
-          <p className={`text-sm text-[#5a7a5a] ${lang === 'te' ? 'te' : ''}`}>{t('report_done_msg')}</p>
+          <CheckCircle2 className="mx-auto text-green-600 mb-4" size={64} />
+          <h1 className={`text-2xl font-bold text-green-700 mb-2 ${lang === 'te' ? 'te' : ''}`}>{t('report_done_title')}</h1>
+          <p className={`text-sm text-slate-500 ${lang === 'te' ? 'te' : ''}`}>{t('report_done_msg')}</p>
         </main>
       </>
     )
@@ -149,12 +148,12 @@ export default function ReportPage() {
     <>
       <Header />
       <main className="max-w-xl mx-auto px-4 py-8">
-        <h1 className={`text-2xl font-bold text-[#e8f5e8] mb-1 ${lang === 'te' ? 'te' : ''}`}>{t('report_title')}</h1>
-        <p className="text-base text-[#5a7a5a] mb-8">{t('report_subtitle')}</p>
+        <h1 className={`text-2xl font-bold text-slate-900 mb-1 ${lang === 'te' ? 'te' : ''}`}>{t('report_title')}</h1>
+        <p className="text-base text-slate-400 mb-8">{t('report_subtitle')}</p>
 
         {/* Issue Type */}
         <div className="card p-5 mb-4">
-          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
             {t('report_issue_type')}
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -164,8 +163,8 @@ export default function ReportPage() {
                 onClick={() => setSelectedIssue(type.id)}
                 className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all
                   ${selectedIssue === type.id
-                    ? 'border-green-500 bg-green-400/8 text-green-400'
-                    : 'border-[#2d442d] bg-[#1e2e1e] text-[#9ab89a] hover:border-green-900'
+                    ? 'border-green-500 bg-green-50 text-green-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-green-300 hover:bg-green-50'
                   }`}
               >
                 <span className="text-xl">{type.emoji}</span>
@@ -179,7 +178,7 @@ export default function ReportPage() {
 
         {/* Photo */}
         <div className="card p-5 mb-4">
-          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
             {t('report_photo')}
           </div>
           <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
@@ -194,41 +193,41 @@ export default function ReportPage() {
           ) : (
             <button
               onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-[#2d442d] rounded-xl p-8 text-center hover:border-green-800 transition-colors"
+              className="w-full border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-green-400 hover:bg-green-50 transition-colors"
             >
-              <Camera className="mx-auto text-[#5a7a5a] mb-2" size={32} />
-              <div className={`text-sm text-[#9ab89a] ${lang === 'te' ? 'te' : ''}`}>{t('report_photo_tap')}</div>
+              <Camera className="mx-auto text-slate-300 mb-2" size={32} />
+              <div className={`text-sm text-slate-500 ${lang === 'te' ? 'te' : ''}`}>{t('report_photo_tap')}</div>
             </button>
           )}
         </div>
 
         {/* Location */}
         <div className="card p-5 mb-4">
-          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
             {t('report_location')}
           </div>
           <button
             onClick={detectLocation}
             disabled={locating}
-            className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all mb-3
+            className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all mb-3
               ${detectedWard
-                ? 'border-green-700 bg-green-400/8'
-                : 'border-[#2d442d] bg-[#1e2e1e] hover:border-green-900'
+                ? 'border-green-400 bg-green-50'
+                : 'border-slate-200 bg-white hover:border-green-300 hover:bg-green-50'
               }`}
           >
-            {locating ? <Loader2 size={20} className="text-green-400 animate-spin" /> : <MapPin size={20} className="text-green-400" />}
+            {locating ? <Loader2 size={20} className="text-green-600 animate-spin" /> : <MapPin size={20} className="text-green-600" />}
             <div className="text-left flex-1">
               {detectedWard ? (
                 <>
-                  <div className={`text-sm font-medium text-green-400 ${lang === 'te' ? 'te' : ''}`}>
+                  <div className={`text-sm font-medium text-green-700 ${lang === 'te' ? 'te' : ''}`}>
                     {wardDisplayName(detectedWard)}
                   </div>
-                  <div className="text-xs text-[#9ab89a]">
+                  <div className="text-xs text-slate-500">
                     {t('report_mla_label')}: {detectedWard.mla_name} · {t('report_mp_label')}: {detectedWard.mp_name}
                   </div>
                 </>
               ) : (
-                <div className={`text-sm text-[#9ab89a] ${lang === 'te' ? 'te' : ''}`}>
+                <div className={`text-sm text-slate-500 ${lang === 'te' ? 'te' : ''}`}>
                   {locating ? t('report_detecting') : t('report_detect')}
                 </div>
               )}
@@ -238,7 +237,7 @@ export default function ReportPage() {
           <select
             value={selectedWard}
             onChange={e => setSelectedWard(e.target.value)}
-            className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 mb-3"
+            className={`${inputCls} mb-3`}
           >
             <option value="">{t('report_select_ward')}</option>
             {Object.entries(mandalGroups).sort(([a], [b]) => a.localeCompare(b)).map(([mandal, mandalWards]) => (
@@ -254,13 +253,13 @@ export default function ReportPage() {
             value={landmark}
             onChange={e => setLandmark(e.target.value)}
             placeholder={t('report_landmark_ph')}
-            className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 placeholder-[#3d5a3d]"
+            className={inputCls}
           />
         </div>
 
         {/* Severity */}
         <div className="card p-5 mb-4">
-          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
             {t('report_severity')}
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -270,10 +269,10 @@ export default function ReportPage() {
                 onClick={() => setSeverity(s)}
                 className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all
                   ${severity === s
-                    ? s === 'low' ? 'border-green-500 bg-green-400/10 text-green-400'
-                      : s === 'medium' ? 'border-amber-500 bg-amber-400/10 text-amber-400'
-                      : 'border-red-500 bg-red-400/10 text-red-400'
-                    : 'border-[#2d442d] bg-[#1e2e1e] text-[#5a7a5a] hover:border-[#3d5a3d]'
+                    ? s === 'low'    ? 'border-green-400 bg-green-50 text-green-700'
+                    : s === 'medium' ? 'border-amber-400 bg-amber-50 text-amber-700'
+                    :                  'border-red-400 bg-red-50 text-red-700'
+                    : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                   }`}
               >
                 {s === 'low' ? '🟢' : s === 'medium' ? '🟡' : '🔴'} {t(severityKeys[s])}
@@ -284,7 +283,7 @@ export default function ReportPage() {
 
         {/* Description */}
         <div className="card p-5 mb-4">
-          <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
             {t('report_description')}
           </div>
           <textarea
@@ -292,24 +291,24 @@ export default function ReportPage() {
             onChange={e => setDescription(e.target.value)}
             placeholder={t('report_desc_ph')}
             rows={3}
-            className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 placeholder-[#3d5a3d] resize-none"
+            className={`${inputCls} resize-none`}
           />
         </div>
 
         {/* Test submission flag */}
-        <label className="flex items-center gap-3 card p-4 mb-6 cursor-pointer hover:border-yellow-800 transition-colors">
+        <label className="flex items-center gap-3 card p-4 mb-6 cursor-pointer hover:border-amber-300 transition-colors">
           <input
             type="checkbox"
             checked={isTest}
             onChange={e => setIsTest(e.target.checked)}
-            className="accent-yellow-500 w-4 h-4"
+            className="accent-amber-500 w-4 h-4"
           />
           <div>
-            <div className="flex items-center gap-2 text-sm text-[#9ab89a]">
-              <FlaskConical size={14} className="text-yellow-400" />
+            <div className="flex items-center gap-2 text-sm text-slate-700">
+              <FlaskConical size={14} className="text-amber-500" />
               {t('report_test_label')}
             </div>
-            <div className="text-xs text-[#5a7a5a] mt-0.5">{t('report_test_hint')}</div>
+            <div className="text-xs text-slate-400 mt-0.5">{t('report_test_hint')}</div>
           </div>
         </label>
 
@@ -323,7 +322,7 @@ export default function ReportPage() {
           {submitting ? t('report_submitting') : t('report_submit')}
         </button>
 
-        <p className="text-center text-xs text-[#3d5a3d] mt-3">
+        <p className="text-center text-xs text-slate-400 mt-3">
           {t('report_anon_note')}
         </p>
       </main>

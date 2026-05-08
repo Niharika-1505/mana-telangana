@@ -41,12 +41,8 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
       })
-      if (res.ok) {
-        setAuthed(true)
-        loadSharedData()
-      } else {
-        alert('Wrong password')
-      }
+      if (res.ok) { setAuthed(true); loadSharedData() }
+      else alert('Wrong password')
     } finally {
       setLoginLoading(false)
     }
@@ -63,7 +59,7 @@ export default function AdminPage() {
       <>
         <Header />
         <main className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="animate-spin text-green-400" size={32} />
+          <Loader2 className="animate-spin text-green-600" size={32} />
         </main>
       </>
     )
@@ -76,15 +72,15 @@ export default function AdminPage() {
         <main className="max-w-sm mx-auto px-4 py-20">
           <div className="card p-8 text-center">
             <div className="text-4xl mb-4">🔐</div>
-            <h1 className="text-xl font-bold mb-2">Admin Dashboard</h1>
-            <p className="te text-sm text-[#5a7a5a] mb-6">నిర్వాహకుల డాష్‌బోర్డ్</p>
+            <h1 className="text-xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
+            <p className="te text-sm text-slate-400 mb-6">నిర్వాహకుల డాష్‌బోర్డ్</p>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && login()}
               placeholder="Admin password"
-              className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] px-3 py-2.5 rounded-xl text-sm mb-3 focus:outline-none focus:border-green-700"
+              className="w-full bg-white border border-slate-200 text-slate-800 px-3 py-2.5 rounded-xl text-sm mb-3 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
             />
             <button onClick={login} disabled={loginLoading} className="btn-primary w-full flex items-center justify-center gap-2">
               {loginLoading && <Loader2 size={16} className="animate-spin" />}
@@ -107,29 +103,28 @@ export default function AdminPage() {
       <Header />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <BarChart3 className="text-green-400" size={24} />
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <BarChart3 className="text-green-600" size={24} />
             Admin Dashboard
-            <span className="te text-base text-[#5a7a5a] font-normal">· నిర్వాహకుల డాష్‌బోర్డ్</span>
           </h1>
           <button
             onClick={logout}
-            className="flex items-center gap-1.5 text-sm text-[#5a7a5a] hover:text-red-400 border border-[#2d442d] hover:border-red-900 px-3 py-1.5 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-300 px-3 py-1.5 rounded-lg transition-colors"
           >
             <LogOut size={14} /> Logout
           </button>
         </div>
 
         {/* Tab nav */}
-        <div className="flex gap-1 mb-6 border-b border-[#2d442d]">
+        <div className="flex gap-1 mb-6 border-b border-slate-200">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px
                 ${activeTab === tab.id
-                  ? 'border-green-400 text-green-400'
-                  : 'border-transparent text-[#5a7a5a] hover:text-[#9ab89a]'
+                  ? 'border-green-600 text-green-700'
+                  : 'border-transparent text-slate-400 hover:text-slate-600'
                 }`}
             >
               {tab.icon} {tab.label}
@@ -137,7 +132,6 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Tab content */}
         {activeTab === 'reports' && <ReportsTab wards={wards} issueTypes={issueTypes} />}
         {activeTab === 'wards'   && <WardsTab />}
         {activeTab === 'issues'  && <IssueTypesTab />}

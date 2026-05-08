@@ -29,21 +29,21 @@ export function timeAgo(dateStr: string): string {
 }
 
 export const PARTY_COLORS: Record<string, string> = {
-  INC: 'bg-blue-900 text-blue-300',
-  BRS: 'bg-red-900 text-red-300',
-  BJP: 'bg-orange-900 text-orange-300',
-  TDP: 'bg-yellow-900 text-yellow-300',
+  INC: 'bg-blue-100 text-blue-800',
+  BRS: 'bg-red-100 text-red-800',
+  BJP: 'bg-orange-100 text-orange-800',
+  TDP: 'bg-yellow-100 text-yellow-700',
 }
 
 export const STATUS_CONFIG = {
-  open:        { label: 'Open',        labelTe: 'తెరవబడింది',      color: 'text-red-400',    dot: 'bg-red-400' },
-  in_progress: { label: 'In Progress', labelTe: 'ప్రగతిలో ఉంది',   color: 'text-amber-400',  dot: 'bg-amber-400' },
-  resolved:    { label: 'Resolved',    labelTe: 'పరిష్కరించబడింది', color: 'text-green-400',  dot: 'bg-green-400' },
-  rejected:    { label: 'Rejected',    labelTe: 'తిరస్కరించబడింది', color: 'text-gray-400',   dot: 'bg-gray-400' },
+  open:        { label: 'Open',        labelTe: 'తెరవబడింది',      color: 'text-red-600',    dot: 'bg-red-500' },
+  in_progress: { label: 'In Progress', labelTe: 'ప్రగతిలో ఉంది',   color: 'text-amber-600',  dot: 'bg-amber-500' },
+  resolved:    { label: 'Resolved',    labelTe: 'పరిష్కరించబడింది', color: 'text-green-600',  dot: 'bg-green-500' },
+  rejected:    { label: 'Rejected',    labelTe: 'తిరస్కరించబడింది', color: 'text-slate-400',  dot: 'bg-slate-400' },
 }
 
 export const SEVERITY_CONFIG = {
-  low:    { label: 'Low',    labelTe: 'తక్కువ',   color: 'text-green-400', bg: 'bg-green-900' },
-  medium: { label: 'Medium', labelTe: 'మధ్యస్థం', color: 'text-amber-400', bg: 'bg-amber-900' },
-  high:   { label: 'High',   labelTe: 'అధికం',    color: 'text-red-400',   bg: 'bg-red-900' },
+  low:    { label: 'Low',    labelTe: 'తక్కువ',   color: 'text-green-600', bg: 'bg-green-50' },
+  medium: { label: 'Medium', labelTe: 'మధ్యస్థం', color: 'text-amber-600', bg: 'bg-amber-50' },
+  high:   { label: 'High',   labelTe: 'అధికం',    color: 'text-red-600',   bg: 'bg-red-50' },
 }

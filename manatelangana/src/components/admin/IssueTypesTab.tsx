@@ -10,6 +10,8 @@ const EMPTY_NEW: Omit<IssueType, 'id'> = {
   slug: '', name_en: '', name_te: '', emoji: '', description: '', sort_order: 0, is_active: true,
 }
 
+const inputCls = 'bg-white border border-slate-200 text-slate-700 text-xs rounded px-1.5 py-0.5 w-full focus:outline-none focus:border-green-500'
+
 export default function IssueTypesTab() {
   const [types, setTypes] = useState<IssueType[]>([])
   const [loading, setLoading] = useState(false)
@@ -39,17 +41,12 @@ export default function IssueTypesTab() {
 
     const { error } = await supabase.from('issue_types').update({ [field]: parsed }).eq('id', id)
     if (error) toast.error('Save failed')
-    else {
-      setTypes(prev => prev.map(t => t.id === id ? { ...t, [field]: parsed } : t))
-    }
+    else setTypes(prev => prev.map(t => t.id === id ? { ...t, [field]: parsed } : t))
     setEditCell(null)
   }
 
   async function toggleActive(type: IssueType) {
-    const { error } = await supabase
-      .from('issue_types')
-      .update({ is_active: !type.is_active })
-      .eq('id', type.id)
+    const { error } = await supabase.from('issue_types').update({ is_active: !type.is_active }).eq('id', type.id)
     if (error) toast.error('Update failed')
     else setTypes(prev => prev.map(t => t.id === type.id ? { ...t, is_active: !t.is_active } : t))
   }
@@ -61,20 +58,11 @@ export default function IssueTypesTab() {
     }
     const { error } = await supabase.from('issue_types').insert({
       slug: newType.slug.toLowerCase().replace(/\s+/g, '-'),
-      name_en: newType.name_en,
-      name_te: newType.name_te,
-      emoji: newType.emoji,
-      description: newType.description,
-      sort_order: newType.sort_order,
-      is_active: true,
+      name_en: newType.name_en, name_te: newType.name_te, emoji: newType.emoji,
+      description: newType.description, sort_order: newType.sort_order, is_active: true,
     })
     if (error) toast.error('Add failed: ' + error.message)
-    else {
-      toast.success('Issue type added')
-      setAdding(false)
-      setNewType({ ...EMPTY_NEW })
-      loadTypes()
-    }
+    else { toast.success('Issue type added'); setAdding(false); setNewType({ ...EMPTY_NEW }); loadTypes() }
   }
 
   function CellInput({ field, numeric }: { field: string; numeric?: boolean }) {
@@ -87,7 +75,7 @@ export default function IssueTypesTab() {
         onChange={e => setEditValue(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditCell(null) }}
         onBlur={saveEdit}
-        className="bg-[#0f1f0f] border border-green-700 text-[#9ab89a] text-xs rounded px-1.5 py-0.5 w-full focus:outline-none"
+        className={inputCls}
       />
     )
   }
@@ -97,11 +85,11 @@ export default function IssueTypesTab() {
     if (isEditing) return <CellInput field={field} numeric={numeric} />
     return (
       <span
-        className="cursor-pointer hover:text-green-400 transition-colors"
+        className="cursor-pointer hover:text-green-600 transition-colors"
         onClick={() => startEdit(typeId, field, String(value))}
         title="Click to edit"
       >
-        {value || <span className="text-[#3d5a3d] italic">—</span>}
+        {value || <span className="text-slate-300 italic">—</span>}
       </span>
     )
   }
@@ -111,12 +99,12 @@ export default function IssueTypesTab() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-[#5a7a5a]">
+        <div className="text-sm text-slate-400">
           {types.length} issue types · click any cell to edit · Enter to save · Esc to cancel
         </div>
         <button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-1.5 text-xs bg-green-800 hover:bg-green-700 text-green-100 px-3 py-1.5 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg transition-colors"
         >
           <Plus size={14} /> Add Issue Type
         </button>
@@ -126,15 +114,15 @@ export default function IssueTypesTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#2d442d] bg-[#1e2e1e]">
+              <tr className="border-b border-slate-200 bg-slate-50">
                 {cols.map(h => (
-                  <th key={h} className="px-4 py-2.5 text-left text-[#5a7a5a] uppercase tracking-wider font-semibold whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-4 py-2.5 text-left text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {adding && (
-                <tr className="border-b border-green-900 bg-green-950/20">
+                <tr className="border-b border-green-200 bg-green-50">
                   {(['emoji', 'name_en', 'name_te', 'slug', 'sort_order'] as const).map(field => (
                     <td key={field} className="px-3 py-2">
                       <input
@@ -142,47 +130,47 @@ export default function IssueTypesTab() {
                         placeholder={field}
                         value={(newType as any)[field]}
                         onChange={e => setNewType(prev => ({ ...prev, [field]: field === 'sort_order' ? parseInt(e.target.value) || 0 : e.target.value }))}
-                        className="bg-[#0f1f0f] border border-green-700 text-[#9ab89a] text-xs rounded px-1.5 py-0.5 w-full focus:outline-none"
+                        className={inputCls}
                       />
                     </td>
                   ))}
-                  <td className="px-3 py-2 text-green-400">Active</td>
+                  <td className="px-3 py-2 text-green-600 font-medium">Active</td>
                   <td className="px-3 py-2">
                     <div className="flex gap-1">
-                      <button onClick={addType} className="text-green-400 hover:text-green-300"><Check size={14} /></button>
-                      <button onClick={() => { setAdding(false); setNewType({ ...EMPTY_NEW }) }} className="text-[#5a7a5a] hover:text-red-400"><X size={14} /></button>
+                      <button onClick={addType} className="text-green-600 hover:text-green-700"><Check size={14} /></button>
+                      <button onClick={() => { setAdding(false); setNewType({ ...EMPTY_NEW }) }} className="text-slate-400 hover:text-red-500"><X size={14} /></button>
                     </div>
                   </td>
                 </tr>
               )}
 
               {loading ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-[#5a7a5a]">Loading...</td></tr>
-              ) : types.map(t => (
-                <tr key={t.id} className={`border-b border-[#1e2e1e] hover:bg-[#1a2a1a] transition-colors ${!t.is_active ? 'opacity-50' : ''}`}>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-400">Loading...</td></tr>
+              ) : types.map(tp => (
+                <tr key={tp.id} className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${!tp.is_active ? 'opacity-50' : ''}`}>
                   <td className="px-4 py-3 text-xl">
-                    <EditableCell typeId={t.id} field="emoji" value={t.emoji} />
+                    <EditableCell typeId={tp.id} field="emoji" value={tp.emoji} />
                   </td>
-                  <td className="px-4 py-3 text-[#9ab89a]">
-                    <EditableCell typeId={t.id} field="name_en" value={t.name_en} />
+                  <td className="px-4 py-3 text-slate-700">
+                    <EditableCell typeId={tp.id} field="name_en" value={tp.name_en} />
                   </td>
-                  <td className="px-4 py-3 text-[#9ab89a] te">
-                    <EditableCell typeId={t.id} field="name_te" value={t.name_te} />
+                  <td className="px-4 py-3 text-slate-700 te">
+                    <EditableCell typeId={tp.id} field="name_te" value={tp.name_te} />
                   </td>
-                  <td className="px-4 py-3 text-[#5a7a5a] font-mono">
-                    <EditableCell typeId={t.id} field="slug" value={t.slug} />
+                  <td className="px-4 py-3 text-slate-500 font-mono">
+                    <EditableCell typeId={tp.id} field="slug" value={tp.slug} />
                   </td>
-                  <td className="px-4 py-3 text-[#9ab89a] w-16">
-                    <EditableCell typeId={t.id} field="sort_order" value={t.sort_order} numeric />
+                  <td className="px-4 py-3 text-slate-700 w-16">
+                    <EditableCell typeId={tp.id} field="sort_order" value={tp.sort_order} numeric />
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => toggleActive(t)}
+                      onClick={() => toggleActive(tp)}
                       className={`text-xs px-2 py-0.5 rounded-full font-medium transition-colors ${
-                        t.is_active ? 'bg-green-900/40 text-green-400 hover:bg-green-900/60' : 'bg-[#2d442d] text-[#5a7a5a] hover:bg-[#3d5a3d]'
+                        tp.is_active ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
                       }`}
                     >
-                      {t.is_active ? 'Active' : 'Inactive'}
+                      {tp.is_active ? 'Active' : 'Inactive'}
                     </button>
                   </td>
                   <td className="px-4 py-3" />
