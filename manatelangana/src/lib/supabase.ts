@@ -10,7 +10,7 @@ export type Report = {
   ward_id: string
   issue_type_id: string
   severity: 'low' | 'medium' | 'high'
-  status: 'open' | 'in_progress' | 'resolved' | 'rejected'
+  status: 'open' | 'in_progress' | 'resolved' | 'rejected' | 'inactive'
   photo_url: string | null
   description: string | null
   lat: number | null
@@ -19,12 +19,24 @@ export type Report = {
   upvotes: number
   is_test: boolean
   is_duplicate: boolean
+  browser_fingerprint: string | null
+  reporter_says_fixed_at: string | null
   resolution_note: string | null
   created_at: string
   updated_at: string
   resolved_at: string | null
   wards?: Ward
   issue_types?: IssueType
+}
+
+export type ReportVerification = {
+  id: string
+  report_id: string
+  verdict: 'fixed' | 'still_broken'
+  photo_url: string | null
+  note: string | null
+  browser_fingerprint: string
+  created_at: string
 }
 
 export type Ward = {

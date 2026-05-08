@@ -1,7 +1,8 @@
 'use client'
-import { Report } from '@/lib/supabase'
+import { useState, useEffect } from 'react'
+import { Report, ReportVerification, supabase } from '@/lib/supabase'
 import { STATUS_CONFIG, SEVERITY_CONFIG, timeAgo } from '@/lib/utils'
-import { X, MapPin, Clock, Camera, Tag, User } from 'lucide-react'
+import { X, MapPin, Clock, Camera, Tag, User, Users, CheckCircle2, XCircle, Flag } from 'lucide-react'
 
 interface Props {
   report: Report
@@ -12,8 +13,21 @@ interface Props {
 export default function ReportDetailPanel({ report, onClose, onStatusChange }: Props) {
   const ward = report.wards as any
   const issueType = report.issue_types as any
-  const status = STATUS_CONFIG[report.status]
+  const status = STATUS_CONFIG[report.status as keyof typeof STATUS_CONFIG]
   const severity = SEVERITY_CONFIG[report.severity]
+  const [verifications, setVerifications] = useState<ReportVerification[]>([])
+
+  useEffect(() => {
+    supabase
+      .from('report_verifications')
+      .select('*')
+      .eq('report_id', report.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setVerifications(data || []))
+  }, [report.id])
+
+  const fixedCount = verifications.filter(v => v.verdict === 'fixed').length
+  const brokenCount = verifications.filter(v => v.verdict === 'still_broken').length
 
   return (
     <>
@@ -161,6 +175,12 @@ export default function ReportDetailPanel({ report, onClose, onStatusChange }: P
               <span className="text-slate-400">Submitted</span>
               <span className="text-slate-700 font-mono text-xs">{new Date(report.created_at).toLocaleString('en-IN')}</span>
             </div>
+            {(report as any).reporter_says_fixed_at && (
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400 flex items-center gap-1"><Flag size={11} className="text-green-500" /> Reporter says fixed</span>
+                <span className="text-green-600 font-mono text-xs">{new Date((report as any).reporter_says_fixed_at).toLocaleString('en-IN')}</span>
+              </div>
+            )}
             {report.resolved_at && (
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Resolved</span>
@@ -177,11 +197,56 @@ export default function ReportDetailPanel({ report, onClose, onStatusChange }: P
             </div>
           </div>
 
+          {/* Community verifications */}
+          {verifications.length > 0 && (
+            <div className="card p-4">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                <Users size={12} /> Community Verifications ({verifications.length})
+              </div>
+              <div className="flex gap-4 mb-3">
+                <div className="flex items-center gap-1.5 text-sm">
+                  <CheckCircle2 size={14} className="text-green-500" />
+                  <span className="font-semibold text-green-700">{fixedCount}</span>
+                  <span className="text-slate-400 text-xs">say fixed</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-sm">
+                  <XCircle size={14} className="text-red-400" />
+                  <span className="font-semibold text-red-600">{brokenCount}</span>
+                  <span className="text-slate-400 text-xs">say still broken</span>
+                </div>
+              </div>
+              {verifications.filter(v => v.photo_url).length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-1 mb-2">
+                  {verifications.filter(v => v.photo_url).slice(0, 6).map(v => (
+                    <a key={v.id} href={v.photo_url!} target="_blank" rel="noreferrer" className="flex-shrink-0">
+                      <img src={v.photo_url!} alt="Verification" className="w-14 h-14 object-cover rounded-lg hover:opacity-80" />
+                    </a>
+                  ))}
+                </div>
+              )}
+              <div className="space-y-1.5">
+                {verifications.slice(0, 5).map(v => (
+                  <div key={v.id} className="flex items-start gap-2 text-xs">
+                    {v.verdict === 'fixed'
+                      ? <CheckCircle2 size={12} className="text-green-500 mt-0.5 flex-shrink-0" />
+                      : <XCircle size={12} className="text-red-400 mt-0.5 flex-shrink-0" />
+                    }
+                    <span className="text-slate-500">
+                      {v.verdict === 'fixed' ? 'Fixed' : 'Still broken'}
+                      {v.note ? ` — "${v.note}"` : ''}
+                      <span className="text-slate-300 ml-1">{timeAgo(v.created_at)}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Change status */}
           <div className="card p-4">
             <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Change Status</div>
-            <div className="grid grid-cols-2 gap-2">
-              {(['open', 'in_progress', 'resolved', 'rejected'] as const).map(s => (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {(['open', 'in_progress', 'resolved', 'rejected', 'inactive'] as const).map(s => (
                 <button
                   key={s}
                   onClick={() => { onStatusChange(report.id, s); onClose() }}

@@ -106,6 +106,44 @@ const translations = {
   footer_open_source:    { en: 'Open source civic platform',    te: 'ఓపెన్ సోర్స్ పౌర వేదిక',        hi: 'ओपन सोर्स नागरिक मंच' },
   footer_no_tracking:    { en: 'No ads. No tracking. No login.', te: 'ప్రకటనలు లేవు. ట్రాకింగ్ లేదు. లాగిన్ లేదు.', hi: 'कोई विज्ञापन नहीं। कोई ट्रैकिंग नहीं। लॉगिन नहीं।' },
   footer_free:           { en: 'FREE',                          te: 'ఉచితం',                          hi: 'मुफ़्त' },
+
+  // Open reports banner
+  banner_title:         { en: 'Your Open Reports',                         te: 'మీ పెండింగ్ నివేదికలు',                    hi: 'आपकी खुली रिपोर्टें' },
+  banner_subtitle:      { en: 'Come back anytime to check if these have been addressed', te: 'ఇవి పరిష్కరించబడ్డాయో తనిఖీ చేయండి', hi: 'जांचें कि इन्हें हल किया गया या नहीं' },
+  banner_fixed_btn:     { en: "It's fixed ✓",                              te: 'సరి చేయబడింది ✓',                          hi: 'ठीक हो गया ✓' },
+  banner_reporter_thanks: { en: 'Thanks! Admin will verify.',              te: 'ధన్యవాదాలు! అడ్మిన్ ధృవీకరిస్తారు.',      hi: 'धन्यवाद! एडमिन सत्यापित करेंगे।' },
+  banner_device_note:   { en: 'Tracked by this browser only — clearing browser data will lose this connection', te: 'ఈ బ్రౌజర్ ద్వారా మాత్రమే ట్రాక్ అవుతుంది', hi: 'केवल इस ब्राउज़र से ट्रैक किया जाता है' },
+
+  // Post-submission screen
+  submitted_title:       { en: 'Report Submitted!',                        te: 'నివేదిక సమర్పించబడింది!',                  hi: 'रिपोर्ट सबमिट हुई!' },
+  submitted_how_it_works:{ en: 'How your report works',                    te: 'మీ నివేదిక ఎలా పని చేస్తుంది',             hi: 'आपकी रिपोर्ट कैसे काम करती है' },
+  submitted_step1:       { en: 'Your report is live on the public map',    te: 'మీ నివేదిక పబ్లిక్ మ్యాప్‌లో కనిపిస్తోంది', hi: 'आपकी रिपोर्ट सार्वजनिक नक्शे पर लाइव है' },
+  submitted_step2:       { en: 'Admin reviews and marks it In Progress',   te: 'అడ్మిన్ సమీక్షించి ప్రగతిలో ఉంది అని గుర్తిస్తారు', hi: 'एडमिन समीक्षा करके इन-प्रोग्रेस मार्क करेंगे' },
+  submitted_step3:       { en: 'MLA / municipal body is held accountable', te: 'ఎమ్మెల్యే / నగర పాలక సంస్థ జవాబుదారీగా ఉంటారు', hi: 'विधायक / नगर निकाय जवाबदेह होंगे' },
+  submitted_step4:       { en: 'Anyone can verify the fix with a photo',   te: 'ఎవరైనా ఫోటోతో పరిష్కారాన్ని ధృవీకరించవచ్చు', hi: 'कोई भी फोटो से ठीक होने की पुष्टि कर सकता है' },
+  submitted_limits_title:{ en: 'Important — since you are anonymous',      te: 'ముఖ్యమైనది — మీరు అనామకంగా ఉన్నారు',       hi: 'महत्वपूर्ण — आप गुमनाम हैं' },
+  submitted_limit1:      { en: 'We cannot email or text you updates',      te: 'మేము మీకు అప్‌డేట్‌లు పంపలేము',            hi: 'हम आपको अपडेट ईमेल/SMS नहीं कर सकते' },
+  submitted_limit2:      { en: 'You are recognised by this browser and device only', te: 'మీరు ఈ బ్రౌజర్ మరియు పరికరం ద్వారా మాత్రమే గుర్తించబడతారు', hi: 'आप केवल इस ब्राउज़र और डिवाइस से पहचाने जाते हैं' },
+  submitted_limit3:      { en: 'Clearing browser data disconnects you from this report', te: 'బ్రౌజర్ డేటా క్లియర్ చేస్తే ఈ నివేదిక మీకు కనిపించదు', hi: 'ब्राउज़र डेटा साफ करने पर रिपोर्ट से कनेक्शन खो जाएगा' },
+  submitted_limit4:      { en: 'A different browser means a different identity', te: 'వేరే బ్రౌజర్ అంటే వేరే గుర్తింపు', hi: 'अलग ब्राउज़र का मतलब अलग पहचान' },
+  submitted_pwa_title:   { en: 'Install as app for easy tracking',         te: 'సులువుగా ట్రాక్ చేయడానికి యాప్‌గా ఇన్‌స్టాల్ చేయండి', hi: 'आसान ट्रैकिंग के लिए ऐप इंस्टॉल करें' },
+  submitted_pwa_android: { en: 'Install App',                              te: 'యాప్ ఇన్‌స్టాల్ చేయండి',                   hi: 'ऐप इंस्टॉल करें' },
+  submitted_pwa_ios:     { en: 'Tap the Share button → Add to Home Screen', te: 'Share బటన్ నొక్కి → Add to Home Screen', hi: 'Share बटन दबाएं → Add to Home Screen' },
+  submitted_pwa_installed: { en: 'App already installed ✓',                te: 'యాప్ ఇప్పటికే ఇన్‌స్టాల్ అయింది ✓',        hi: 'ऐप पहले से इंस्टॉल है ✓' },
+  submitted_back:        { en: 'Back to Map',                              te: 'మ్యాప్‌కు తిరిగి వెళ్ళండి',               hi: 'नक्शे पर वापस जाएं' },
+
+  // Community verification modal
+  verify_title:          { en: 'Help verify this issue',                   te: 'ఈ సమస్య పరిష్కారాన్ని ధృవీకరించండి',       hi: 'इस समस्या को सत्यापित करें' },
+  verify_fixed:          { en: "Yes, it's fixed",                          te: 'అవును, పరిష్కరించబడింది',                   hi: 'हाँ, ठीक हो गया' },
+  verify_broken:         { en: 'Still broken',                             te: 'ఇంకా పరిష్కరించబడలేదు',                    hi: 'अभी भी खराब है' },
+  verify_photo_optional: { en: 'Add a photo (optional but helpful)',       te: 'ఫోటో జోడించండి (ఐచ్ఛికం కానీ సహాయకరం)',   hi: 'फोटो जोड़ें (वैकल्पिक पर उपयोगी)' },
+  verify_note_ph:        { en: 'Any notes...',                             te: 'గమనికలు...',                               hi: 'कोई नोट...' },
+  verify_submit:         { en: 'Submit Verification',                      te: 'ధృవీకరణ సమర్పించండి',                      hi: 'सत्यापन सबमिट करें' },
+  verify_thanks:         { en: 'Thanks for verifying!',                    te: 'ధృవీకరించినందుకు ధన్యవాదాలు!',             hi: 'सत्यापन के लिए धन्यवाद!' },
+  verify_community_title:{ en: 'Community Verifications',                  te: 'సమాజ ధృవీకరణలు',                          hi: 'सामुदायिक सत्यापन' },
+  verify_say_fixed:      { en: 'say fixed',                                te: 'పరిష్కరించబడింది అన్నారు',                  hi: 'ने ठीक बताया' },
+  verify_say_broken:     { en: 'say still broken',                         te: 'ఇంకా పరిష్కరించబడలేదు అన్నారు',            hi: 'ने अभी भी खराब बताया' },
+  verify_none:           { en: 'No verifications yet — be the first',      te: 'ఇంకా ధృవీకరణలు లేవు — మొదటిగా ధృవీకరించండి', hi: 'अभी कोई सत्यापन नहीं — पहले बनें' },
 }
 
 export const T = translations

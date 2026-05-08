@@ -5,12 +5,67 @@ import { uploadPhoto } from '@/lib/cloudinary'
 import Header from '@/components/shared/Header'
 import TransparencyFooter from '@/components/shared/TransparencyFooter'
 import toast from 'react-hot-toast'
-import { Camera, MapPin, Loader2, CheckCircle2, FlaskConical } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { Camera, MapPin, Loader2, CheckCircle2, FlaskConical, Smartphone } from 'lucide-react'
+import Link from 'next/link'
 import { useLang } from '@/lib/i18n'
+import { getFingerprint } from '@/lib/utils'
+
+function PWAInstallCard() {
+  const { t } = useLang()
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [isIOS, setIsIOS] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [installing, setInstalling] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent))
+    setIsInstalled(window.matchMedia('(display-mode: standalone)').matches)
+    const handler = (e: Event) => { e.preventDefault(); setDeferredPrompt(e) }
+    window.addEventListener('beforeinstallprompt', handler)
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  if (isInstalled) {
+    return (
+      <div className="card p-4 mb-4 flex items-center justify-center gap-2 text-sm text-green-600">
+        <CheckCircle2 size={16} /> {t('submitted_pwa_installed')}
+      </div>
+    )
+  }
+
+  return (
+    <div className="card p-5 mb-4">
+      <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+        <Smartphone size={13} /> {t('submitted_pwa_title')}
+      </div>
+      {deferredPrompt ? (
+        <button
+          disabled={installing}
+          onClick={async () => {
+            setInstalling(true)
+            deferredPrompt.prompt()
+            const { outcome } = await deferredPrompt.userChoice
+            if (outcome === 'accepted') setDeferredPrompt(null)
+            setInstalling(false)
+          }}
+          className="btn-primary w-full py-3 flex items-center justify-center gap-2"
+        >
+          📲 {t('submitted_pwa_android')}
+        </button>
+      ) : isIOS ? (
+        <div className="flex items-start gap-3 text-sm text-slate-600 bg-slate-50 rounded-xl p-3">
+          <span className="text-xl flex-shrink-0">📲</span>
+          <span>{t('submitted_pwa_ios')}</span>
+        </div>
+      ) : (
+        <p className="text-sm text-slate-400">Open this site in Chrome or Safari to get the install option.</p>
+      )}
+    </div>
+  )
+}
 
 export default function ReportPage() {
-  const router = useRouter()
   const { lang, t } = useLang()
   const [issueTypes, setIssueTypes] = useState<IssueType[]>([])
   const [wards, setWards] = useState<Ward[]>([])
@@ -98,12 +153,11 @@ export default function ReportPage() {
         status: 'open',
         upvotes: 1,
         is_test: isTest,
+        browser_fingerprint: getFingerprint(),
       } as any)
 
       if (error) throw error
       setSubmitted(true)
-      toast.success('Report submitted!')
-      setTimeout(() => router.push('/'), 2500)
     } catch (err) {
       console.error(err)
       toast.error('Submission failed. Please try again.')
@@ -135,10 +189,62 @@ export default function ReportPage() {
     return (
       <>
         <Header />
-        <main className="max-w-xl mx-auto px-4 py-20 text-center">
-          <CheckCircle2 className="mx-auto text-green-600 mb-4" size={64} />
-          <h1 className={`text-2xl font-bold text-green-700 mb-2 ${lang === 'te' ? 'te' : ''}`}>{t('report_done_title')}</h1>
-          <p className={`text-sm text-slate-500 ${lang === 'te' ? 'te' : ''}`}>{t('report_done_msg')}</p>
+        <main className="max-w-xl mx-auto px-4 py-8">
+          {/* Success */}
+          <div className="text-center mb-6">
+            <CheckCircle2 className="mx-auto text-green-500 mb-3" size={56} />
+            <h1 className={`text-2xl font-bold text-green-700 mb-1 ${lang === 'te' ? 'te' : ''}`}>
+              {t('submitted_title')}
+            </h1>
+            <p className="text-sm text-slate-400">Your report is now live on the public map</p>
+          </div>
+
+          {/* How it works */}
+          <div className="card p-5 mb-4">
+            <div className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">
+              {t('submitted_how_it_works')}
+            </div>
+            {[
+              { icon: '🗺', key: 'submitted_step1' as const },
+              { icon: '👤', key: 'submitted_step2' as const },
+              { icon: '📢', key: 'submitted_step3' as const },
+              { icon: '🤝', key: 'submitted_step4' as const },
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-3 text-sm py-1.5">
+                <span className="text-base mt-0.5">{step.icon}</span>
+                <span className={`text-slate-600 ${lang === 'te' ? 'te' : ''}`}>{t(step.key)}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Limitations */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-4">
+            <div className="text-xs font-semibold text-amber-700 uppercase tracking-widest mb-3">
+              {t('submitted_limits_title')}
+            </div>
+            {[
+              'submitted_limit1' as const,
+              'submitted_limit2' as const,
+              'submitted_limit3' as const,
+              'submitted_limit4' as const,
+            ].map((key, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm text-amber-700 py-1">
+                <span className="text-amber-400 mt-0.5 flex-shrink-0">⚠</span>
+                <span className={lang === 'te' ? 'te' : ''}>{t(key)}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* PWA install */}
+          <PWAInstallCard />
+
+          {/* Back to map */}
+          <Link
+            href="/"
+            className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2 mt-2"
+          >
+            🗺 {t('submitted_back')}
+          </Link>
         </main>
       </>
     )

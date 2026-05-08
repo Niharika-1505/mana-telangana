@@ -40,6 +40,7 @@ export const STATUS_CONFIG = {
   in_progress: { label: 'In Progress', labelTe: 'ప్రగతిలో ఉంది',   color: 'text-amber-600',  dot: 'bg-amber-500' },
   resolved:    { label: 'Resolved',    labelTe: 'పరిష్కరించబడింది', color: 'text-green-600',  dot: 'bg-green-500' },
   rejected:    { label: 'Rejected',    labelTe: 'తిరస్కరించబడింది', color: 'text-slate-400',  dot: 'bg-slate-400' },
+  inactive:    { label: 'Inactive',    labelTe: 'నిష్క్రియంగా ఉంది', color: 'text-slate-400', dot: 'bg-slate-300' },
 }
 
 export const SEVERITY_CONFIG = {

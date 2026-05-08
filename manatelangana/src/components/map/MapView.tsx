@@ -2,9 +2,9 @@
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useState, useRef } from 'react'
 import { supabase, Report } from '@/lib/supabase'
-import { timeAgo, STATUS_CONFIG } from '@/lib/utils'
 import Link from 'next/link'
 import { useLang } from '@/lib/i18n'
+import ReportDetailModal from './ReportDetailModal'
 
 const ISSUE_COLORS: Record<string, string> = {
   garbage:      '#ef4444',
@@ -31,6 +31,7 @@ export default function MapView() {
   const [reports, setReports] = useState<Report[]>([])
   const [filter, setFilter] = useState<string>('all')
   const [mounted, setMounted] = useState(false)
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const { t } = useLang()
 
   useEffect(() => { setMounted(true) }, [])
@@ -87,7 +88,6 @@ export default function MapView() {
       const slug = (report.issue_types as any)?.slug || 'garbage'
       const color = ISSUE_COLORS[slug] || '#16a34a'
       const emoji = (report.issue_types as any)?.emoji || '📍'
-      const status = STATUS_CONFIG[report.status as keyof typeof STATUS_CONFIG]
 
       const icon = L.divIcon({
         html: `<div style="
@@ -105,26 +105,7 @@ export default function MapView() {
       })
 
       const marker = L.marker([report.lat, report.lng], { icon })
-      marker.bindPopup(`
-        <div style="min-width:200px;padding:4px;font-family:'DM Sans',sans-serif">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-size:18px">${emoji}</span>
-            <strong style="font-size:13px;color:#0f172a">${(report.issue_types as any)?.name_en || 'Issue'}</strong>
-          </div>
-          <div style="font-size:11px;color:#475569;margin-bottom:4px">
-            📍 ${report.wards ? report.wards.ward_name_en : 'Unknown ward'}
-          </div>
-          <div style="font-size:11px;color:#475569;margin-bottom:4px">
-            🏛 MLA: ${report.wards ? report.wards.mla_name : '—'}
-          </div>
-          <div style="font-size:11px;margin-bottom:8px">
-            <span style="color:${color};font-weight:600">${status?.label || report.status}</span>
-            <span style="color:#94a3b8"> · ${timeAgo(report.created_at)}</span>
-          </div>
-          ${report.photo_url ? `<img src="${report.photo_url}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:8px" />` : ''}
-          <a href="/report/${report.id}" style="font-size:11px;color:#16a34a;font-weight:600">View details →</a>
-        </div>
-      `, { maxWidth: 240 })
+      marker.on('click', () => setSelectedReport(report))
 
       marker.addTo(map)
       markersRef.current.push(marker)
@@ -142,6 +123,12 @@ export default function MapView() {
 
   return (
     <div className="card overflow-hidden">
+      {selectedReport && (
+        <ReportDetailModal
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+        />
+      )}
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
         <div className="flex items-center gap-2 text-sm font-medium text-slate-700">

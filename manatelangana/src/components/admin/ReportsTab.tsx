@@ -6,7 +6,7 @@ import ReportDetailPanel from './ReportDetailPanel'
 import toast from 'react-hot-toast'
 import {
   Search, Download, Trash2, ChevronLeft, ChevronRight,
-  Copy, FlaskConical, CheckSquare, Square,
+  Copy, FlaskConical, CheckSquare, Square, Flag,
 } from 'lucide-react'
 
 const PAGE_SIZE = 25
@@ -25,6 +25,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   const [issueFilter, setIssueFilter] = useState('')
   const [severityFilter, setSeverityFilter] = useState('')
   const [showTest, setShowTest] = useState(false)
+  const [showReporterFixed, setShowReporterFixed] = useState(false)
   const [page, setPage] = useState(0)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [detailReport, setDetailReport] = useState<Report | null>(null)
@@ -48,6 +49,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
         if (severityFilter) query = query.eq('severity', severityFilter)
         if (issueFilter) query = query.eq('issue_type_id', issueFilter)
         if (!showTest) query = (query as any).eq('is_test', false)
+        if (showReporterFixed) query = (query as any).not('reporter_says_fixed_at', 'is', null)
 
         if (mandalFilter) {
           const ids = wards.filter(w => w.mandal_en === mandalFilter).map(w => w.id)
@@ -72,7 +74,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
     setPage(0)
     setSelectedIds(new Set())
     return () => { cancelled = true }
-  }, [statusFilter, mandalFilter, issueFilter, severityFilter, showTest, refreshKey, wards])
+  }, [statusFilter, mandalFilter, issueFilter, severityFilter, showTest, showReporterFixed, refreshKey, wards])
 
   useEffect(() => { setPage(0) }, [search])
 
@@ -193,7 +195,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="filter-select">
           <option value="">All Status</option>
-          {['open', 'in_progress', 'resolved', 'rejected'].map(s => (
+          {['open', 'in_progress', 'resolved', 'rejected', 'inactive'].map(s => (
             <option key={s} value={s}>{s.replace('_', ' ')}</option>
           ))}
         </select>
@@ -227,6 +229,11 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
               Bulk delete test data
             </button>
           )}
+          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+            <input type="checkbox" checked={showReporterFixed} onChange={e => setShowReporterFixed(e.target.checked)} className="accent-green-600" />
+            <Flag size={13} className="text-green-500" />
+            Reporter says fixed
+          </label>
         </div>
 
         <div className="flex items-center gap-2">
@@ -235,7 +242,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
               <span className="text-xs text-slate-400">{selectedIds.size} selected</span>
               <select value={bulkStatus} onChange={e => setBulkStatus(e.target.value)} className="filter-select text-xs">
                 <option value="">Change status…</option>
-                {['open', 'in_progress', 'resolved', 'rejected'].map(s => (
+                {['open', 'in_progress', 'resolved', 'rejected', 'inactive'].map(s => (
                   <option key={s} value={s}>{s.replace('_', ' ')}</option>
                 ))}
               </select>
@@ -314,6 +321,11 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
                       <div className="flex gap-1">
                         {(r as any).is_test && <span title="Test" className="text-amber-500"><FlaskConical size={12} /></span>}
                         {(r as any).is_duplicate && <span title="Duplicate" className="text-slate-400"><Copy size={12} /></span>}
+                        {(r as any).reporter_says_fixed_at && (
+                          <span title={`Reporter says fixed on ${new Date((r as any).reporter_says_fixed_at).toLocaleDateString('en-IN')}`} className="text-green-500">
+                            <Flag size={12} />
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-3 py-3">
@@ -331,6 +343,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
                         <option value="in_progress">In Progress</option>
                         <option value="resolved">Resolved</option>
                         <option value="rejected">Rejected</option>
+                        <option value="inactive">Inactive</option>
                       </select>
                     </td>
                     <td className="px-3 py-3" onClick={e => e.stopPropagation()}>
