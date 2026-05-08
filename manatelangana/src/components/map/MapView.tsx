@@ -21,11 +21,13 @@ const ISSUE_COLORS: Record<string, string> = {
   toilet:       '#a78bfa',
 }
 
-const TELANGANA_CENTER: [number, number] = [17.8, 79.5]
+const TELANGANA_CENTER: [number, number] = [17.5, 79.5]
 const DEFAULT_ZOOM = 7
 const TELANGANA_BOUNDS: [[number, number], [number, number]] = [[15.5, 77.0], [19.9, 81.5]]
-const DISTRICT_GEOJSON_URL =
-  'https://raw.githubusercontent.com/gggodhwani/telangana_boundaries/master/districts.json'
+const DISTRICT_GEOJSON_URLS = [
+  'https://raw.githubusercontent.com/datta07/INDIAN-SHAPEFILES/master/STATES/TELANGANA/TELANGANA_DISTRICTS.geojson',
+  'https://raw.githubusercontent.com/datameet/india-district-boundaries/master/states/Telangana.geojson',
+]
 
 const DISTRICT_STYLE = {
   color: '#1a6b5a', weight: 1.5, opacity: 0.6, fillOpacity: 0.03, fillColor: '#1a6b5a',
@@ -72,7 +74,7 @@ export default function MapView() {
       zoomControl: true,
       maxBounds: TELANGANA_BOUNDS,
       maxBoundsViscosity: 1.0,
-      minZoom: 6,
+      minZoom: 7,
       maxZoom: 18,
     })
 
@@ -90,9 +92,14 @@ export default function MapView() {
 
   async function loadDistrictBoundaries(L: any, map: any) {
     try {
-      const res = await fetch(DISTRICT_GEOJSON_URL)
-      if (!res.ok) return
-      const geojson = await res.json()
+      let geojson: any = null
+      for (const url of DISTRICT_GEOJSON_URLS) {
+        try {
+          const res = await fetch(url)
+          if (res.ok) { geojson = await res.json(); break }
+        } catch { /* try next */ }
+      }
+      if (!geojson) return
       L.geoJSON(geojson, {
         style: () => ({ ...DISTRICT_STYLE }),
         onEachFeature: (feature: any, layer: any) => {
