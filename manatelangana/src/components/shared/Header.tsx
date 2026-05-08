@@ -1,7 +1,8 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, Trophy, Camera, LayoutDashboard, HelpCircle, Heart } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react'
+import { MapPin, Trophy, Camera, LayoutDashboard, HelpCircle, Heart, ChevronDown } from 'lucide-react'
 import { useLang } from '@/lib/i18n'
 import type { Lang } from '@/lib/i18n'
 
@@ -13,36 +14,52 @@ const navItems = [
   { href: '/join',        key: 'nav_join'        as const, icon: Heart },
 ]
 
-const LANG_LABELS: Record<Lang, string> = { en: 'EN', te: 'తె', hi: 'हि' }
+const LANG_OPTIONS: { value: Lang; short: string; label: string }[] = [
+  { value: 'te', short: 'తె', label: 'తెలుగు' },
+  { value: 'en', short: 'EN', label: 'English' },
+  { value: 'hi', short: 'हि', label: 'हिंदी'  },
+]
 
 export default function Header() {
   const path = usePathname()
   const isAdmin = path.startsWith('/admin')
   const { lang, setLang, t } = useLang()
+  const [langOpen, setLangOpen] = useState(false)
+  const langRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const currentLang = LANG_OPTIONS.find(o => o.value === lang)!
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/97 backdrop-blur-sm shadow-sm">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
-          {/* Logo */}
-          <Link href="/" className="flex flex-col leading-none group">
-            <span className="te text-lg font-semibold text-green-700 group-hover:text-green-800 transition-colors">
+
+          {/* Logo — Telugu only, no subtitle */}
+          <Link href="/" className="flex-shrink-0">
+            <span className="te text-lg font-semibold text-green-700 hover:text-green-800 transition-colors">
               మన తెలంగాణ
-            </span>
-            <span className="text-[10px] text-slate-400 tracking-[2px] uppercase mt-0.5">
-              Mana Telangana · Nalgonda
             </span>
           </Link>
 
           {/* Nav */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-1 min-w-0">
             {!isAdmin && navItems.map(({ href, key, icon: Icon }) => {
               const active = path === href
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                     ${active
                       ? 'bg-green-50 text-green-700 border border-green-200'
                       : 'text-slate-600 hover:text-green-700 hover:bg-green-50'
@@ -54,40 +71,56 @@ export default function Header() {
               )
             })}
 
-            {/* Report button (mobile) */}
+            {/* Report button (mobile only) */}
             {!isAdmin && (
               <Link
                 href="/report"
-                className="sm:hidden ml-2 btn-primary text-xs px-3 py-1.5 flex items-center gap-1"
+                className="sm:hidden ml-1 btn-primary text-xs px-2.5 py-1.5 flex items-center gap-1 flex-shrink-0"
               >
                 <Camera size={12} />
-                {t('nav_report')}
+                <span className="hidden xs:inline">{t('nav_report')}</span>
               </Link>
             )}
 
-            {/* Language switcher (user-facing pages only) */}
+            {/* Language dropdown */}
             {!isAdmin && (
-              <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden ml-2">
-                {(['te', 'en', 'hi'] as Lang[]).map(l => (
-                  <button
-                    key={l}
-                    onClick={() => setLang(l)}
-                    className={`px-2 py-1 text-xs font-medium transition-colors ${
-                      lang === l
-                        ? 'bg-green-50 text-green-700'
-                        : 'text-slate-400 hover:text-slate-600 bg-white'
-                    }`}
-                  >
-                    {LANG_LABELS[l]}
-                  </button>
-                ))}
+              <div ref={langRef} className="relative ml-1 flex-shrink-0">
+                <button
+                  onClick={() => setLangOpen(o => !o)}
+                  className="flex items-center gap-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:border-green-300 hover:text-green-700 bg-white transition-colors"
+                >
+                  <span className={lang === 'te' ? 'te' : ''}>{currentLang.short}</span>
+                  <ChevronDown
+                    size={11}
+                    className={`text-slate-400 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {langOpen && (
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden min-w-[120px]">
+                    {LANG_OPTIONS.map(o => (
+                      <button
+                        key={o.value}
+                        onClick={() => { setLang(o.value); setLangOpen(false) }}
+                        className={`w-full text-left px-3 py-2.5 text-xs transition-colors flex items-center gap-2.5
+                          ${lang === o.value
+                            ? 'bg-green-50 text-green-700 font-semibold'
+                            : 'text-slate-600 hover:bg-slate-50'
+                          }`}
+                      >
+                        <span className={`w-4 text-center flex-shrink-0 ${o.value === 'te' ? 'te' : ''}`}>{o.short}</span>
+                        <span className={o.value === 'te' ? 'te' : ''}>{o.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
             {/* Admin link */}
             <Link
               href="/admin"
-              className={`ml-2 p-1.5 rounded-lg transition-colors
+              className={`ml-1 p-1.5 rounded-lg transition-colors flex-shrink-0
                 ${isAdmin ? 'text-green-700 bg-green-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
               title="Admin Dashboard"
             >
