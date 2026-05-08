@@ -15,7 +15,7 @@ const FAQ_DATA: FAQSection[] = [
     items: [
       {
         q: 'What is Mana Telangana?',
-        a: 'A free, anonymous civic issue reporting platform for Nalgonda district. Citizens submit geo-tagged complaints with photos. MLAs are ranked publicly by how quickly their constituency resolves reported issues.',
+        a: 'A free, anonymous civic issue reporting platform for Telangana. Citizens submit geo-tagged complaints with photos. MLAs are ranked publicly by how quickly their constituency resolves reported issues.',
       },
       {
         q: 'Who runs this platform?',
@@ -137,7 +137,7 @@ const FAQ_DATA: FAQSection[] = [
               'Do not clear browser data if you want to track your report',
               'Do not switch browsers expecting to see your old reports',
               'Do not submit test reports without ticking the "This is a test" checkbox',
-              'Do not report issues outside Nalgonda district — ward data is district-specific',
+              'Do not report issues outside Telangana — ward data may not be available for all areas yet',
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="text-red-400 font-bold mt-0.5">✗</span>
@@ -166,7 +166,7 @@ const FAQ_DATA: FAQSection[] = [
       },
       {
         q: 'What is a Ward Data Contributor?',
-        a: 'Someone who helps us collect or verify ward-level data for Nalgonda — ward boundaries, GPS coordinates, mandal names, MLA and MP information. This is the most urgent need right now as we build out the platform.',
+        a: 'Someone who helps us collect or verify ward-level data for Telangana — ward boundaries, GPS coordinates, mandal names, MLA and MP information. This is the most urgent need right now as we build out the platform.',
       },
       {
         q: 'Is the platform open source?',

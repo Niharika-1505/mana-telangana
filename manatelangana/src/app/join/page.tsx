@@ -10,7 +10,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 
 const ROLES = [
-  { id: 'ward_data',   label: 'Ward Data Contributor',         sublabel: 'Help collect / verify ward, mandal & GPS data for Nalgonda',  icon: Database },
+  { id: 'ward_data',   label: 'Ward Data Contributor',         sublabel: 'Help collect / verify ward, mandal & GPS data for Telangana', icon: Database },
   { id: 'activist',    label: 'Local Activist / Ground Verifier', sublabel: 'On-ground verification of whether issues are actually fixed',  icon: Users },
   { id: 'developer',   label: 'Developer',                     sublabel: 'Contribute code to the open-source platform',                  icon: Code2 },
   { id: 'designer',    label: 'Designer',                      sublabel: 'UI/UX improvements, illustrations, or data visualisation',      icon: Palette },
@@ -198,7 +198,7 @@ export default function JoinPage() {
             <input
               value={area}
               onChange={e => setArea(e.target.value)}
-              placeholder="e.g. Nalgonda Ward 12, Miryalaguda, Suryapet..."
+              placeholder="e.g. Warangal Ward 5, Karimnagar, Suryapet..."
               className={inputCls}
             />
           </div>
