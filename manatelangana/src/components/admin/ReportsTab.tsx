@@ -127,12 +127,13 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   }
 
   async function markDuplicate(id: string) {
-    const { error } = await supabase.from('reports').update({
+    const q: any = supabase.from('reports')
+    const { error } = await q.update({
       is_duplicate: true,
       status: 'rejected',
       resolution_note: 'Marked as duplicate',
       updated_at: new Date().toISOString(),
-    } as any).eq('id', id)
+    }).eq('id', id)
     if (error) toast.error('Failed — run migration 002 first')
     else { toast.success('Marked as duplicate'); setRefreshKey(k => k + 1) }
   }
@@ -163,7 +164,8 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
 
   async function deleteAllTestData() {
     if (!window.confirm('Delete ALL test submissions permanently?')) return
-    const { error } = await supabase.from('reports').delete().eq('is_test' as any, true)
+    const q: any = supabase.from('reports')
+    const { error } = await q.delete().eq('is_test', true)
     if (error) toast.error('Failed — run migration 002 first')
     else { toast.success('All test data deleted'); setRefreshKey(k => k + 1) }
   }
