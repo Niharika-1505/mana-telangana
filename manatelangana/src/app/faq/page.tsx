@@ -5,9 +5,12 @@ import TransparencyFooter from '@/components/shared/TransparencyFooter'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useLang } from '@/lib/i18n'
 import Link from 'next/link'
+import InstallBanner from '@/components/InstallBanner'
 
 type FAQItem = { q: string; a: string | React.ReactNode }
 type FAQSection = { title: string; items: FAQItem[] }
+
+const INSTALL_SECTION_TITLE = '📱 Save to Your Phone'
 
 const FAQ_DATA: FAQSection[] = [
   {
@@ -111,12 +114,12 @@ const FAQ_DATA: FAQSection[] = [
     title: "Do's and Don'ts",
     items: [
       {
-        q: "What should I do after reporting?",
+        q: 'What should I do after reporting?',
         a: (
           <ul className="list-none space-y-1.5">
             {[
               'Return to the site periodically to check your report status',
-              'Verify other people\'s reports if you pass by the location',
+              "Verify other people's reports if you pass by the location",
               'Spread the word — more reports = more accountability pressure',
               'Submit a community verification photo when you see a fix',
             ].map((item, i) => (
@@ -129,7 +132,7 @@ const FAQ_DATA: FAQSection[] = [
         ),
       },
       {
-        q: "What should I avoid?",
+        q: 'What should I avoid?',
         a: (
           <ul className="list-none space-y-1.5">
             {[
@@ -150,6 +153,114 @@ const FAQ_DATA: FAQSection[] = [
     ],
   },
   {
+    title: INSTALL_SECTION_TITLE,
+    items: [
+      {
+        q: 'Can I save this as an app on my phone?',
+        a: (
+          <div className="space-y-4">
+            <p>
+              Yes! You can add మన తెలంగాణ to your phone&apos;s home screen and use it just like
+              a regular app — no app store needed.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+                  🤖 Android (Chrome)
+                </div>
+                <ol className="list-none space-y-1.5 text-sm text-slate-600">
+                  {[
+                    <>Open <strong>manatelangana.org.in</strong> in Chrome</>,
+                    <>Tap the three-dots menu <strong>⋮</strong> at the top right</>,
+                    <>Tap <strong>"Add to Home screen"</strong></>,
+                    <>Tap <strong>"Add"</strong> to confirm</>,
+                  ].map((step, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="flex-shrink-0 w-4 h-4 bg-green-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center mt-0.5">
+                        {i + 1}
+                      </span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-3">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">
+                  🍎 iPhone (Safari)
+                </div>
+                <ol className="list-none space-y-1.5 text-sm text-slate-600">
+                  {[
+                    <>Open <strong>manatelangana.org.in</strong> in Safari</>,
+                    <>Tap the Share button <strong>□↑</strong> at the bottom</>,
+                    <>Scroll down and tap <strong>"Add to Home Screen"</strong></>,
+                    <>Tap <strong>"Add"</strong> to confirm</>,
+                  ].map((step, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="flex-shrink-0 w-4 h-4 bg-slate-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center mt-0.5">
+                        {i + 1}
+                      </span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+            <p className="te text-xs text-slate-400 leading-relaxed">
+              అవును! మన తెలంగాణను మీ ఫోన్ హోమ్ స్క్రీన్‌కు జోడించవచ్చు — యాప్ స్టోర్ అవసరం లేదు.
+              Android లో Chrome మెనూ (⋮) నొక్కి "హోమ్ స్క్రీన్‌కు జోడించు" ఎంచుకోండి.
+              iPhone లో Safari Share బటన్ (□↑) నొక్కి "హోమ్ స్క్రీన్‌కు జోడించు" ఎంచుకోండి.
+            </p>
+          </div>
+        ),
+      },
+      {
+        q: 'Does it work without internet?',
+        a: (
+          <div>
+            <p>
+              Basic pages load even without internet once you have visited them before. However
+              submitting new reports requires an internet connection.
+            </p>
+            <p className="te text-xs text-slate-400 mt-2 leading-relaxed">
+              మీరు ముందే చూసిన పేజీలు ఇంటర్నెట్ లేకుండా తెరుచుకుంటాయి. కానీ కొత్త సమస్యలు
+              నివేదించడానికి ఇంటర్నెట్ అవసరం.
+            </p>
+          </div>
+        ),
+      },
+      {
+        q: 'Is it free to install?',
+        a: (
+          <div>
+            <p>
+              Completely free! No app store, no account, no charges. Just save it to your home
+              screen and use it.
+            </p>
+            <p className="te text-xs text-slate-400 mt-2 leading-relaxed">
+              పూర్తిగా ఉచితం! యాప్ స్టోర్ అవసరం లేదు, ఖాతా అవసరం లేదు, ఎలాంటి చార్జీలు లేవు.
+              హోమ్ స్క్రీన్‌కు సేవ్ చేసి వాడండి.
+            </p>
+          </div>
+        ),
+      },
+      {
+        q: 'Why should I save it to my home screen?',
+        a: (
+          <div>
+            <p>
+              It loads faster, works like a native app, and makes it easier to quickly report an
+              issue when you spot one on the street.
+            </p>
+            <p className="te text-xs text-slate-400 mt-2 leading-relaxed">
+              వేగంగా తెరుచుకుంటుంది, నేటివ్ యాప్‌లా పని చేస్తుంది, వీధిలో సమస్య కనిపించినప్పుడు
+              వెంటనే నివేదించడం సులభమవుతుంది.
+            </p>
+          </div>
+        ),
+      },
+    ],
+  },
+  {
     title: 'Getting Involved',
     items: [
       {
@@ -160,7 +271,9 @@ const FAQ_DATA: FAQSection[] = [
             <Link href="/join" className="text-green-600 underline font-medium hover:text-green-700">
               Join Us
             </Link>{' '}
-            page to express interest as a ward data contributor, local activist, developer, designer, or researcher. We will reach out when we need your help — no commitment required now.
+            page to express interest as a ward data contributor, local activist, developer,
+            designer, or researcher. We will reach out when we need your help — no commitment
+            required now.
           </span>
         ),
       },
@@ -225,6 +338,11 @@ export default function FAQPage() {
                   {section.title}
                 </h2>
               </div>
+              {section.title === INSTALL_SECTION_TITLE && (
+                <div className="px-5 pt-4">
+                  <InstallBanner />
+                </div>
+              )}
               <div className="px-5">
                 {section.items.map(item => (
                   <AccordionItem key={item.q} q={item.q} a={item.a} />
