@@ -5,10 +5,12 @@ import { PARTY_COLORS } from '@/lib/utils'
 import Header from '@/components/shared/Header'
 import TransparencyFooter from '@/components/shared/TransparencyFooter'
 import { Trophy, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { useLang } from '@/lib/i18n'
 
 export default function LeaderboardPage() {
   const [data, setData] = useState<MlaLeaderboard[]>([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLang()
 
   useEffect(() => {
     async function load() {
@@ -37,43 +39,41 @@ export default function LeaderboardPage() {
           <div>
             <h1 className="text-2xl font-bold text-[#e8f5e8] flex items-center gap-2">
               <Trophy className="text-amber-400" size={24} />
-              MLA Accountability Leaderboard
+              {t('lb_title')}
             </h1>
-            <p className="te text-base text-[#5a7a5a] mt-1">జవాబుదారీతనం · ఎంత వేగంగా సమస్యలు పరిష్కరిస్తున్నారు?</p>
+            <p className="text-base text-[#5a7a5a] mt-1">{t('lb_subtitle')}</p>
           </div>
           <div className="text-right text-xs text-[#5a7a5a]">
-            <div>Updated live</div>
-            <div>Nalgonda District · 2026</div>
+            <div>{t('lb_updated')}</div>
+            <div>{t('lb_district')}</div>
           </div>
         </div>
 
         {/* Score explanation */}
         <div className="card p-4 mb-6 flex flex-wrap gap-4 text-xs text-[#9ab89a]">
-          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-400" /> Score ≥ 70% — Good</div>
-          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-amber-400" /> Score 40–70% — Moderate</div>
-          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-400" /> Score &lt; 40% — Needs attention</div>
-          <div className="ml-auto te">స్కోర్ = 7 రోజులలో పరిష్కరించిన సమస్యల శాతం</div>
+          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-400" /> {t('lb_good')}</div>
+          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-amber-400" /> {t('lb_moderate')}</div>
+          <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-red-400" /> {t('lb_poor')}</div>
         </div>
 
         {/* Table */}
         <div className="card overflow-hidden">
-          {/* Table header */}
           <div className="grid grid-cols-[48px_1fr_80px_80px_80px_100px] gap-2 px-5 py-3 bg-[#1e2e1e] border-b border-[#2d442d] text-xs font-semibold text-[#5a7a5a] uppercase tracking-widest">
-            <div>Rank</div>
-            <div>MLA / Constituency</div>
-            <div className="text-center">Issues</div>
-            <div className="text-center">Resolved</div>
-            <div className="text-center">Pending</div>
-            <div className="text-center">Score</div>
+            <div>{t('lb_rank')}</div>
+            <div>{t('lb_mla_col')}</div>
+            <div className="text-center">{t('lb_issues')}</div>
+            <div className="text-center">{t('lb_resolved')}</div>
+            <div className="text-center">{t('lb_pending')}</div>
+            <div className="text-center">{t('lb_score')}</div>
           </div>
 
           {loading && (
-            <div className="py-12 text-center text-[#5a7a5a] text-sm">Loading leaderboard...</div>
+            <div className="py-12 text-center text-[#5a7a5a] text-sm">{t('lb_loading')}</div>
           )}
 
           {!loading && data.length === 0 && (
             <div className="py-12 text-center">
-              <p className="text-[#5a7a5a] text-sm">No reports yet — be the first to report an issue!</p>
+              <p className="text-[#5a7a5a] text-sm">{t('lb_empty')}</p>
             </div>
           )}
 
@@ -93,7 +93,7 @@ export default function LeaderboardPage() {
               {/* MLA info */}
               <div>
                 <div className="font-semibold text-[#e8f5e8] text-sm">{mla.mla_name}</div>
-                <div className="text-xs text-[#5a7a5a] mt-0.5">{mla.constituency_en} Constituency</div>
+                <div className="text-xs text-[#5a7a5a] mt-0.5">{mla.constituency_en} {t('lb_constituency')}</div>
                 <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded mt-1 ${PARTY_COLORS[mla.mla_party] || 'bg-gray-800 text-gray-400'}`}>
                   {mla.mla_party}
                 </span>
@@ -123,11 +123,7 @@ export default function LeaderboardPage() {
         {/* Note */}
         <div className="card p-4 mt-4 flex items-start gap-3 text-xs text-[#5a7a5a]">
           <span className="text-lg">ℹ️</span>
-          <span>
-            Score = % of issues resolved within 7 days of reporting. Updated in real time as citizens report and issues get resolved.
-            Data is entirely citizen-sourced and anonymous.{' '}
-            <span className="te">స్కోర్ = 7 రోజులలో పరిష్కరించిన సమస్యల శాతం. డేటా పౌరులు అందించింది.</span>
-          </span>
+          <span>{t('lb_note')}</span>
         </div>
       </main>
       <TransparencyFooter />

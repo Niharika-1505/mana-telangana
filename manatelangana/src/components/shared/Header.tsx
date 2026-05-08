@@ -2,16 +2,21 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { MapPin, Trophy, Camera, LayoutDashboard } from 'lucide-react'
+import { useLang } from '@/lib/i18n'
+import type { Lang } from '@/lib/i18n'
 
 const navItems = [
-  { href: '/',            label: 'Map',         labelTe: 'నక్ష',              icon: MapPin },
-  { href: '/leaderboard', label: 'Leaderboard', labelTe: 'జవాబుదారీతనం',     icon: Trophy },
-  { href: '/report',      label: 'Report',      labelTe: 'నివేదించు',         icon: Camera },
+  { href: '/',            key: 'nav_map'         as const, icon: MapPin },
+  { href: '/leaderboard', key: 'nav_leaderboard' as const, icon: Trophy },
+  { href: '/report',      key: 'nav_report'      as const, icon: Camera },
 ]
+
+const LANG_LABELS: Record<Lang, string> = { en: 'EN', te: 'తె', hi: 'हि' }
 
 export default function Header() {
   const path = usePathname()
   const isAdmin = path.startsWith('/admin')
+  const { lang, setLang, t } = useLang()
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#2d442d] bg-[#162016]/95 backdrop-blur-sm">
@@ -29,7 +34,7 @@ export default function Header() {
 
           {/* Nav */}
           <nav className="flex items-center gap-1">
-            {navItems.map(({ href, label, labelTe, icon: Icon }) => {
+            {!isAdmin && navItems.map(({ href, key, icon: Icon }) => {
               const active = path === href
               return (
                 <Link
@@ -42,20 +47,40 @@ export default function Header() {
                     }`}
                 >
                   <Icon size={14} />
-                  <span className="hidden sm:inline">{label}</span>
-                  <span className="hidden lg:inline te text-xs opacity-60">· {labelTe}</span>
+                  <span className={`hidden sm:inline ${lang === 'te' ? 'te' : ''}`}>{t(key)}</span>
                 </Link>
               )
             })}
 
             {/* Report button (mobile) */}
-            <Link
-              href="/report"
-              className="sm:hidden ml-2 btn-primary text-xs px-3 py-1.5 flex items-center gap-1"
-            >
-              <Camera size={12} />
-              Report
-            </Link>
+            {!isAdmin && (
+              <Link
+                href="/report"
+                className="sm:hidden ml-2 btn-primary text-xs px-3 py-1.5 flex items-center gap-1"
+              >
+                <Camera size={12} />
+                {t('nav_report')}
+              </Link>
+            )}
+
+            {/* Language switcher (user-facing pages only) */}
+            {!isAdmin && (
+              <div className="flex items-center border border-[#2d442d] rounded-lg overflow-hidden ml-2">
+                {(['te', 'en', 'hi'] as Lang[]).map(l => (
+                  <button
+                    key={l}
+                    onClick={() => setLang(l)}
+                    className={`px-2 py-1 text-xs font-medium transition-colors ${
+                      lang === l
+                        ? 'bg-green-400/10 text-green-400'
+                        : 'text-[#5a7a5a] hover:text-[#9ab89a]'
+                    }`}
+                  >
+                    {LANG_LABELS[l]}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Admin link */}
             <Link

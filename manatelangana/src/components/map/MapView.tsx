@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase, Report } from '@/lib/supabase'
 import { timeAgo, STATUS_CONFIG } from '@/lib/utils'
 import Link from 'next/link'
+import { useLang } from '@/lib/i18n'
 
 const ISSUE_COLORS: Record<string, string> = {
   garbage:      '#f87171',
@@ -20,7 +21,6 @@ const ISSUE_COLORS: Record<string, string> = {
   toilet:       '#c4b5fd',
 }
 
-// Nalgonda district center
 const NALGONDA_CENTER: [number, number] = [17.05, 79.27]
 const DEFAULT_ZOOM = 9
 
@@ -31,6 +31,7 @@ export default function MapView() {
   const [reports, setReports] = useState<Report[]>([])
   const [filter, setFilter] = useState<string>('all')
   const [mounted, setMounted] = useState(false)
+  const { t } = useLang()
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -131,13 +132,13 @@ export default function MapView() {
     })
   }
 
-  const issueTypes = [
-    { slug: 'all', emoji: '🗺', label: 'All' },
-    { slug: 'garbage', emoji: '🗑', label: 'Garbage' },
-    { slug: 'pothole', emoji: '🕳', label: 'Pothole' },
-    { slug: 'drainage', emoji: '💧', label: 'Drainage' },
-    { slug: 'streetlight', emoji: '💡', label: 'Light' },
-    { slug: 'waterlogging', emoji: '🌧', label: 'Water' },
+  const filterItems = [
+    { slug: 'all',         emoji: '🗺', labelKey: 'map_filter_all'      as const },
+    { slug: 'garbage',     emoji: '🗑', labelKey: 'map_filter_garbage'  as const },
+    { slug: 'pothole',     emoji: '🕳', labelKey: 'map_filter_pothole'  as const },
+    { slug: 'drainage',    emoji: '💧', labelKey: 'map_filter_drainage' as const },
+    { slug: 'streetlight', emoji: '💡', labelKey: 'map_filter_light'    as const },
+    { slug: 'waterlogging',emoji: '🌧', labelKey: 'map_filter_water'    as const },
   ]
 
   return (
@@ -146,16 +147,16 @@ export default function MapView() {
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#2d442d]">
         <div className="flex items-center gap-2 text-sm font-medium text-[#9ab89a]">
           <div className="live-dot" />
-          Live Map · Nalgonda District
+          {t('map_live')}
         </div>
         <Link href="/report" className="btn-primary text-xs px-3 py-1.5">
-          + Report Issue
+          {t('map_report_btn')}
         </Link>
       </div>
 
       {/* Filter pills */}
       <div className="flex gap-2 px-4 py-2 border-b border-[#2d442d] overflow-x-auto">
-        {issueTypes.map(({ slug, emoji, label }) => (
+        {filterItems.map(({ slug, emoji, labelKey }) => (
           <button
             key={slug}
             onClick={() => setFilter(slug)}
@@ -165,7 +166,7 @@ export default function MapView() {
                 : 'border border-[#2d442d] text-[#5a7a5a] hover:border-green-900'
               }`}
           >
-            {emoji} {label}
+            {emoji} {t(labelKey)}
           </button>
         ))}
       </div>

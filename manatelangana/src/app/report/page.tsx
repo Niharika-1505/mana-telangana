@@ -7,9 +7,11 @@ import TransparencyFooter from '@/components/shared/TransparencyFooter'
 import toast from 'react-hot-toast'
 import { Camera, MapPin, Loader2, CheckCircle2, FlaskConical } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useLang } from '@/lib/i18n'
 
 export default function ReportPage() {
   const router = useRouter()
+  const { lang, t } = useLang()
   const [issueTypes, setIssueTypes] = useState<IssueType[]>([])
   const [wards, setWards] = useState<Ward[]>([])
   const [selectedIssue, setSelectedIssue] = useState<string>('')
@@ -40,7 +42,6 @@ export default function ReportPage() {
     load()
   }, [])
 
-  // Group wards by mandal for <optgroup>
   const mandalGroups = wards.reduce<Record<string, Ward[]>>((acc, ward) => {
     if (!acc[ward.mandal_en]) acc[ward.mandal_en] = []
     acc[ward.mandal_en].push(ward)
@@ -102,7 +103,7 @@ export default function ReportPage() {
       if (error) throw error
 
       setSubmitted(true)
-      toast.success('Report submitted! నివేదిక సమర్పించబడింది')
+      toast.success('Report submitted!')
       setTimeout(() => router.push('/'), 2500)
     } catch (err) {
       console.error(err)
@@ -112,15 +113,33 @@ export default function ReportPage() {
     }
   }
 
+  function wardDisplayName(w: Ward) {
+    return (lang === 'te' ? w.ward_name_te : w.ward_name_en) || w.ward_name_en
+  }
+
+  function mandalDisplayName(mandalEn: string, mandalWards: Ward[]) {
+    if (lang !== 'te') return mandalEn
+    return mandalWards[0]?.mandal_te || mandalEn
+  }
+
+  function issueDisplayName(type: IssueType) {
+    return (lang === 'te' ? type.name_te : type.name_en) || type.name_en
+  }
+
+  const severityKeys = {
+    low: 'report_sev_low',
+    medium: 'report_sev_medium',
+    high: 'report_sev_high',
+  } as const
+
   if (submitted) {
     return (
       <>
         <Header />
         <main className="max-w-xl mx-auto px-4 py-20 text-center">
           <CheckCircle2 className="mx-auto text-green-400 mb-4" size={64} />
-          <h1 className="text-2xl font-bold text-green-400 mb-2">Report Submitted!</h1>
-          <p className="te text-lg text-[#9ab89a] mb-2">నివేదిక సమర్పించబడింది</p>
-          <p className="text-sm text-[#5a7a5a]">Your MLA has been notified. Redirecting to map...</p>
+          <h1 className={`text-2xl font-bold text-green-400 mb-2 ${lang === 'te' ? 'te' : ''}`}>{t('report_done_title')}</h1>
+          <p className={`text-sm text-[#5a7a5a] ${lang === 'te' ? 'te' : ''}`}>{t('report_done_msg')}</p>
         </main>
       </>
     )
@@ -130,13 +149,13 @@ export default function ReportPage() {
     <>
       <Header />
       <main className="max-w-xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-[#e8f5e8] mb-1">Report a Civic Issue</h1>
-        <p className="te text-base text-[#5a7a5a] mb-8">సమస్యను నివేదించండి · Anonymous · No login needed</p>
+        <h1 className={`text-2xl font-bold text-[#e8f5e8] mb-1 ${lang === 'te' ? 'te' : ''}`}>{t('report_title')}</h1>
+        <p className="text-base text-[#5a7a5a] mb-8">{t('report_subtitle')}</p>
 
         {/* Issue Type */}
         <div className="card p-5 mb-4">
           <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
-            Issue Type · <span className="te normal-case">సమస్య రకం</span>
+            {t('report_issue_type')}
           </div>
           <div className="grid grid-cols-2 gap-2">
             {issueTypes.map(type => (
@@ -150,9 +169,8 @@ export default function ReportPage() {
                   }`}
               >
                 <span className="text-xl">{type.emoji}</span>
-                <div>
-                  <div className="text-sm font-medium">{type.name_en}</div>
-                  <div className="te text-xs opacity-60">{type.name_te}</div>
+                <div className={`text-sm font-medium ${lang === 'te' ? 'te' : ''}`}>
+                  {issueDisplayName(type)}
                 </div>
               </button>
             ))}
@@ -162,7 +180,7 @@ export default function ReportPage() {
         {/* Photo */}
         <div className="card p-5 mb-4">
           <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
-            Photo Evidence · <span className="te normal-case">ఫోటో నిదర్శనం</span>
+            {t('report_photo')}
           </div>
           <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handlePhoto} className="hidden" />
           {photoPreview ? (
@@ -171,7 +189,7 @@ export default function ReportPage() {
               <button
                 onClick={() => { setPhoto(null); setPhotoPreview('') }}
                 className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-lg"
-              >Remove</button>
+              >{t('report_photo_remove')}</button>
             </div>
           ) : (
             <button
@@ -179,8 +197,7 @@ export default function ReportPage() {
               className="w-full border-2 border-dashed border-[#2d442d] rounded-xl p-8 text-center hover:border-green-800 transition-colors"
             >
               <Camera className="mx-auto text-[#5a7a5a] mb-2" size={32} />
-              <div className="text-sm text-[#9ab89a]">Tap to take photo or upload</div>
-              <div className="te text-xs text-[#5a7a5a] mt-1">ఫోటో తీయండి లేదా అప్లోడ్ చేయండి</div>
+              <div className={`text-sm text-[#9ab89a] ${lang === 'te' ? 'te' : ''}`}>{t('report_photo_tap')}</div>
             </button>
           )}
         </div>
@@ -188,7 +205,7 @@ export default function ReportPage() {
         {/* Location */}
         <div className="card p-5 mb-4">
           <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
-            Location · <span className="te normal-case">స్థానం</span>
+            {t('report_location')}
           </div>
           <button
             onClick={detectLocation}
@@ -203,29 +220,31 @@ export default function ReportPage() {
             <div className="text-left flex-1">
               {detectedWard ? (
                 <>
-                  <div className="text-sm font-medium text-green-400">{detectedWard.ward_name_en}</div>
-                  <div className="text-xs text-[#9ab89a]">MLA: {detectedWard.mla_name} · MP: {detectedWard.mp_name}</div>
+                  <div className={`text-sm font-medium text-green-400 ${lang === 'te' ? 'te' : ''}`}>
+                    {wardDisplayName(detectedWard)}
+                  </div>
+                  <div className="text-xs text-[#9ab89a]">
+                    {t('report_mla_label')}: {detectedWard.mla_name} · {t('report_mp_label')}: {detectedWard.mp_name}
+                  </div>
                 </>
               ) : (
-                <>
-                  <div className="text-sm text-[#9ab89a]">{locating ? 'Detecting...' : 'Auto-detect my location'}</div>
-                  <div className="te text-xs text-[#5a7a5a]">నా స్థానాన్ని స్వయంచాలకంగా గుర్తించు</div>
-                </>
+                <div className={`text-sm text-[#9ab89a] ${lang === 'te' ? 'te' : ''}`}>
+                  {locating ? t('report_detecting') : t('report_detect')}
+                </div>
               )}
             </div>
           </button>
 
-          {/* Ward dropdown grouped by mandal */}
           <select
             value={selectedWard}
             onChange={e => setSelectedWard(e.target.value)}
             className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 mb-3"
           >
-            <option value="">Or select ward manually · వార్డు ఎంచుకోండి</option>
+            <option value="">{t('report_select_ward')}</option>
             {Object.entries(mandalGroups).sort(([a], [b]) => a.localeCompare(b)).map(([mandal, mandalWards]) => (
-              <optgroup key={mandal} label={mandal}>
+              <optgroup key={mandal} label={mandalDisplayName(mandal, mandalWards)}>
                 {mandalWards.map(w => (
-                  <option key={w.id} value={w.id}>{w.ward_name_en}</option>
+                  <option key={w.id} value={w.id}>{wardDisplayName(w)}</option>
                 ))}
               </optgroup>
             ))}
@@ -234,7 +253,7 @@ export default function ReportPage() {
           <input
             value={landmark}
             onChange={e => setLandmark(e.target.value)}
-            placeholder="Landmark (e.g. Near Nalgonda Bus Stand) · సమీప ప్రదేశం"
+            placeholder={t('report_landmark_ph')}
             className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 placeholder-[#3d5a3d]"
           />
         </div>
@@ -242,14 +261,14 @@ export default function ReportPage() {
         {/* Severity */}
         <div className="card p-5 mb-4">
           <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
-            Severity · <span className="te normal-case">తీవ్రత</span>
+            {t('report_severity')}
           </div>
           <div className="grid grid-cols-3 gap-2">
             {(['low', 'medium', 'high'] as const).map(s => (
               <button
                 key={s}
                 onClick={() => setSeverity(s)}
-                className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all capitalize
+                className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all
                   ${severity === s
                     ? s === 'low' ? 'border-green-500 bg-green-400/10 text-green-400'
                       : s === 'medium' ? 'border-amber-500 bg-amber-400/10 text-amber-400'
@@ -257,7 +276,7 @@ export default function ReportPage() {
                     : 'border-[#2d442d] bg-[#1e2e1e] text-[#5a7a5a] hover:border-[#3d5a3d]'
                   }`}
               >
-                {s === 'low' ? '🟢' : s === 'medium' ? '🟡' : '🔴'} {s}
+                {s === 'low' ? '🟢' : s === 'medium' ? '🟡' : '🔴'} {t(severityKeys[s])}
               </button>
             ))}
           </div>
@@ -266,12 +285,12 @@ export default function ReportPage() {
         {/* Description */}
         <div className="card p-5 mb-4">
           <div className="text-xs font-semibold text-[#9ab89a] uppercase tracking-widest mb-3">
-            Description (optional) · <span className="te normal-case">వివరణ</span>
+            {t('report_description')}
           </div>
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="Any additional details... · అదనపు వివరాలు"
+            placeholder={t('report_desc_ph')}
             rows={3}
             className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-700 placeholder-[#3d5a3d] resize-none"
           />
@@ -288,9 +307,9 @@ export default function ReportPage() {
           <div>
             <div className="flex items-center gap-2 text-sm text-[#9ab89a]">
               <FlaskConical size={14} className="text-yellow-400" />
-              This is a test submission
+              {t('report_test_label')}
             </div>
-            <div className="text-xs text-[#5a7a5a] mt-0.5">Test reports are hidden from the public map and can be bulk-deleted by admins</div>
+            <div className="text-xs text-[#5a7a5a] mt-0.5">{t('report_test_hint')}</div>
           </div>
         </label>
 
@@ -301,11 +320,11 @@ export default function ReportPage() {
           className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2"
         >
           {submitting ? <Loader2 size={18} className="animate-spin" /> : '📤'}
-          {submitting ? 'Submitting...' : 'Submit Report · నివేదించు'}
+          {submitting ? t('report_submitting') : t('report_submit')}
         </button>
 
         <p className="text-center text-xs text-[#3d5a3d] mt-3">
-          🔒 Anonymous · No account needed · <span className="te">డేటా సురక్షితం</span>
+          {t('report_anon_note')}
         </p>
       </main>
       <TransparencyFooter />
