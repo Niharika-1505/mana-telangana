@@ -29,7 +29,6 @@ No test suite is configured.
 - `/` — Home: interactive Leaflet map with issue pins
 - `/report` — Anonymous issue submission form
 - `/leaderboard` — MLA accountability rankings
-- `/manage-xt92k` — Password-protected admin dashboard (intentionally obscure URL; not linked from any public page)
 
 **Components** (`src/components/`):
 - `map/` — MapView, StatsBar, RecentReports, IssueBreakdown
@@ -69,7 +68,6 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-NEXT_PUBLIC_ADMIN_PASSWORD
 ```
 
 All are `NEXT_PUBLIC_` (browser-exposed). See `DEPLOYMENT.md` for Supabase and Cloudinary setup steps.
