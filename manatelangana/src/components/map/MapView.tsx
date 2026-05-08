@@ -130,18 +130,18 @@ export default function MapView() {
         />
       )}
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-        <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
-          <div className="live-dot" />
+      <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-100">
+        <div className="flex items-center gap-2 text-sm font-medium text-slate-700 min-w-0 truncate">
+          <div className="live-dot flex-shrink-0" />
           {t('map_live')}
         </div>
-        <Link href="/report" className="btn-primary text-xs px-3 py-1.5">
+        <Link href="/report" className="btn-primary text-xs px-3 py-1.5 flex-shrink-0 whitespace-nowrap">
           {t('map_report_btn')}
         </Link>
       </div>
 
-      {/* Filter pills */}
-      <div className="flex gap-2 px-4 py-2 border-b border-slate-100 overflow-x-auto bg-slate-50">
+      {/* Filter pills — horizontally scrollable on mobile */}
+      <div className="flex gap-2 px-4 py-2 border-b border-slate-100 overflow-x-auto scrollbar-hide bg-slate-50">
         {filterItems.map(({ slug, emoji, labelKey }) => (
           <button
             key={slug}
