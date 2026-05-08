@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { MapPin, Trophy, Camera, LayoutDashboard } from 'lucide-react'
+import { MapPin, Trophy, Camera, LayoutDashboard, HelpCircle, Heart } from 'lucide-react'
 import { useLang } from '@/lib/i18n'
 import type { Lang } from '@/lib/i18n'
 
@@ -9,6 +9,8 @@ const navItems = [
   { href: '/',            key: 'nav_map'         as const, icon: MapPin },
   { href: '/leaderboard', key: 'nav_leaderboard' as const, icon: Trophy },
   { href: '/report',      key: 'nav_report'      as const, icon: Camera },
+  { href: '/faq',         key: 'nav_faq'         as const, icon: HelpCircle },
+  { href: '/join',        key: 'nav_join'        as const, icon: Heart },
 ]
 
 const LANG_LABELS: Record<Lang, string> = { en: 'EN', te: 'తె', hi: 'हि' }
