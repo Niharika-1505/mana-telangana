@@ -83,12 +83,13 @@ export default function ReportPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [isTest, setIsTest] = useState(false)
+  const [wardOutOfRange, setWardOutOfRange] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     async function load() {
       const [{ data: types }, { data: wardData }] = await Promise.all([
-        supabase.from('issue_types').select('*').eq('is_active', true).order('sort_order'),
+        supabase.from('issue_types').select('*').order('sort_order'),
         supabase.from('wards').select('*').order('mandal_en').order('ward_number'),
       ])
       if (types) setIssueTypes(types)
@@ -123,9 +124,21 @@ export default function ReportPage() {
           const d = Math.hypot(w.lat - latitude, w.lng - longitude)
           return !best || d < Math.hypot((best.lat || 0) - latitude, (best.lng || 0) - longitude) ? w : best
         }, null as Ward | null)
-        if (nearest) { setDetectedWard(nearest); setSelectedWard(nearest.id) }
+        if (nearest) {
+          const distKm = Math.hypot((nearest.lat! - latitude) * 111, (nearest.lng! - longitude) * 88)
+          if (distKm > 50) {
+            setWardOutOfRange(true)
+            setDetectedWard(null)
+            setSelectedWard('')
+            toast.success('Location detected! No ward found nearby — you can still submit.')
+          } else {
+            setWardOutOfRange(false)
+            setDetectedWard(nearest)
+            setSelectedWard(nearest.id)
+            toast.success('Location detected!')
+          }
+        }
         setLocating(false)
-        toast.success('Location detected!')
       },
       () => { toast.error('Could not get location. Please select ward manually.'); setLocating(false) }
     )
@@ -133,7 +146,7 @@ export default function ReportPage() {
 
   async function handleSubmit() {
     if (!selectedIssue) { toast.error('Please select an issue type'); return }
-    if (!selectedWard && !detectedWard) { toast.error('Please select or detect your location'); return }
+    if (!selectedWard && !detectedWard && lat === null) { toast.error('Please select or detect your location'); return }
     if (!photo) { toast.error('Please add a photo as evidence'); return }
 
     setSubmitting(true)
@@ -196,7 +209,11 @@ export default function ReportPage() {
             <h1 className={`text-2xl font-bold text-green-700 mb-1 ${lang === 'te' ? 'te' : ''}`}>
               {t('submitted_title')}
             </h1>
-            <p className="text-sm text-slate-400">Your report is now live on the public map</p>
+            <p className="text-sm text-slate-400">
+              {wardOutOfRange
+                ? 'Your report is live on the map. No MLA assigned (location outside known wards).'
+                : 'Your report is now live on the public map'}
+            </p>
           </div>
 
           {/* How it works */}
@@ -318,6 +335,8 @@ export default function ReportPage() {
             className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all mb-3
               ${detectedWard
                 ? 'border-green-400 bg-green-50'
+                : wardOutOfRange
+                ? 'border-amber-400 bg-amber-50'
                 : 'border-slate-200 bg-white hover:border-green-300 hover:bg-green-50'
               }`}
           >
@@ -331,6 +350,11 @@ export default function ReportPage() {
                   <div className="text-xs text-slate-500">
                     {t('report_mla_label')}: {detectedWard.mla_name} · {t('report_mp_label')}: {detectedWard.mp_name}
                   </div>
+                </>
+              ) : wardOutOfRange ? (
+                <>
+                  <div className="text-sm font-medium text-amber-700">Location detected</div>
+                  <div className="text-xs text-slate-500">Outside known ward boundaries — you can still submit</div>
                 </>
               ) : (
                 <div className={`text-sm text-slate-500 ${lang === 'te' ? 'te' : ''}`}>
