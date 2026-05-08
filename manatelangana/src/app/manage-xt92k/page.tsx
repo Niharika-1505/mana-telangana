@@ -20,7 +20,7 @@ export default function AdminPage() {
   const [issueTypes, setIssueTypes] = useState<IssueType[]>([])
 
   useEffect(() => {
-    fetch('/api/admin/check')
+    fetch('/api/manage-xt92k/check')
       .then(r => { if (r.ok) { setAuthed(true); loadSharedData() } })
       .finally(() => setCheckingAuth(false))
   }, [])
@@ -37,7 +37,7 @@ export default function AdminPage() {
   async function login() {
     setLoginLoading(true)
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch('/api/manage-xt92k/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -50,7 +50,7 @@ export default function AdminPage() {
   }
 
   async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST' })
+    await fetch('/api/manage-xt92k/logout', { method: 'POST' })
     setAuthed(false)
     setPassword('')
   }

@@ -29,7 +29,7 @@ No test suite is configured.
 - `/` — Home: interactive Leaflet map with issue pins
 - `/report` — Anonymous issue submission form
 - `/leaderboard` — MLA accountability rankings
-- `/admin` — Password-protected status management dashboard
+- `/manage-xt92k` — Password-protected admin dashboard (intentionally obscure URL; not linked from any public page)
 
 **Components** (`src/components/`):
 - `map/` — MapView, StatsBar, RecentReports, IssueBreakdown
@@ -56,7 +56,7 @@ No test suite is configured.
 
 **Severity levels:** `low`, `medium`, `high`, `critical` — styled via config in `utils.ts`.
 
-**Report statuses:** `pending` → `in_progress` → `resolved` (or `rejected`) — only writable from `/admin`.
+**Report statuses:** `pending` → `in_progress` → `resolved` (or `rejected`) — only writable from `/manage-xt92k`.
 
 **Image handling:** Photos upload directly to Cloudinary via unsigned preset; the returned URL is stored in `reports.photo_url`. The Cloudinary domain is whitelisted in `next.config.js`.
 
