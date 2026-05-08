@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRef, useEffect, useState } from 'react'
-import { MapPin, Trophy, Camera, LayoutDashboard, HelpCircle, Heart, ChevronDown } from 'lucide-react'
+import { MapPin, Trophy, Camera, HelpCircle, Heart, ChevronDown } from 'lucide-react'
 import { useLang } from '@/lib/i18n'
 import type { Lang } from '@/lib/i18n'
 
@@ -22,7 +22,7 @@ const LANG_OPTIONS: { value: Lang; short: string; label: string }[] = [
 
 export default function Header() {
   const path = usePathname()
-  const isAdmin = path.startsWith('/admin')
+  const isAdmin = path.startsWith('/manage-xt92k')
   const { lang, setLang, t } = useLang()
   const [langOpen, setLangOpen] = useState(false)
   const langRef = useRef<HTMLDivElement>(null)
@@ -117,15 +117,6 @@ export default function Header() {
               </div>
             )}
 
-            {/* Admin link */}
-            <Link
-              href="/admin"
-              className={`ml-1 p-1.5 rounded-lg transition-colors flex-shrink-0
-                ${isAdmin ? 'text-green-700 bg-green-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
-              title="Admin Dashboard"
-            >
-              <LayoutDashboard size={16} />
-            </Link>
           </nav>
         </div>
       </div>
