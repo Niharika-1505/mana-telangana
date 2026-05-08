@@ -25,7 +25,7 @@ const translations = {
   breakdown_title: { en: 'Issues by Type', te: 'సమస్యల వర్గీకరణ', hi: 'प्रकार अनुसार समस्याएं' },
 
   // MapView
-  map_live:           { en: 'Live Map · Nalgonda District', te: 'లైవ్ మ్యాప్ · నల్గొండ జిల్లా',   hi: 'लाइव नक्शा · नलगोंडा जिला' },
+  map_live:           { en: 'Live Map · Telangana', te: 'లైవ్ మ్యాప్ · తెలంగాణ',   hi: 'लाइव नक्शा · तेलंगाना' },
   map_report_btn:     { en: '+ Report Issue',               te: '+ సమస్య నివేదించు',              hi: '+ समस्या रिपोर्ट करें' },
   map_filter_all:     { en: 'All',                          te: 'అన్నీ',                           hi: 'सभी' },
   map_filter_garbage: { en: 'Garbage',                      te: 'చెత్త',                           hi: 'कचरा' },

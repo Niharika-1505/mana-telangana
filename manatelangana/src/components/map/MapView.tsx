@@ -21,16 +21,29 @@ const ISSUE_COLORS: Record<string, string> = {
   toilet:       '#a78bfa',
 }
 
-const NALGONDA_CENTER: [number, number] = [17.05, 79.27]
-const DEFAULT_ZOOM = 9
+const TELANGANA_CENTER: [number, number] = [17.5, 79.5]
+const DEFAULT_ZOOM = 7
+const TELANGANA_BOUNDS: [[number, number], [number, number]] = [[15.5, 77.0], [19.9, 81.5]]
+const DISTRICT_GEOJSON_URLS = [
+  'https://raw.githubusercontent.com/datta07/INDIAN-SHAPEFILES/master/STATES/TELANGANA/TELANGANA_DISTRICTS.geojson',
+  'https://raw.githubusercontent.com/datameet/india-district-boundaries/master/states/Telangana.geojson',
+]
+
+const DISTRICT_STYLE = {
+  color: '#1a6b5a', weight: 1.5, opacity: 0.6, fillOpacity: 0.03, fillColor: '#1a6b5a',
+}
+const DISTRICT_HOVER_STYLE = {
+  color: '#1a6b5a', weight: 2.5, opacity: 0.9, fillOpacity: 0.08, fillColor: '#1a6b5a',
+}
 
 export default function MapView() {
-  const mapRef = useRef<any>(null)
+  const mapRef        = useRef<any>(null)
   const mapInstanceRef = useRef<any>(null)
-  const markersRef = useRef<any[]>([])
-  const [reports, setReports] = useState<Report[]>([])
-  const [filter, setFilter] = useState<string>('all')
-  const [mounted, setMounted] = useState(false)
+  const leafletRef    = useRef<any>(null)
+  const markersRef    = useRef<any[]>([])
+  const [reports, setReports]             = useState<Report[]>([])
+  const [filter, setFilter]               = useState<string>('all')
+  const [mounted, setMounted]             = useState(false)
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const { t } = useLang()
 
@@ -40,21 +53,29 @@ export default function MapView() {
     if (!mounted) return
     loadMap()
     return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-        mapInstanceRef.current = null
-      }
+      if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null }
     }
   }, [mounted])
+
+  // Re-render markers whenever filter or reports list changes
+  useEffect(() => {
+    if (!mapInstanceRef.current || !leafletRef.current) return
+    addMarkers(leafletRef.current, mapInstanceRef.current, reports, filter)
+  }, [filter, reports])
 
   async function loadMap() {
     const L = (await import('leaflet')).default
     if (!mapRef.current || mapInstanceRef.current) return
+    leafletRef.current = L
 
     const map = L.map(mapRef.current, {
-      center: NALGONDA_CENTER,
+      center: TELANGANA_CENTER,
       zoom: DEFAULT_ZOOM,
       zoomControl: true,
+      maxBounds: TELANGANA_BOUNDS,
+      maxBoundsViscosity: 1.0,
+      minZoom: 7,
+      maxZoom: 18,
     })
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -63,10 +84,46 @@ export default function MapView() {
     }).addTo(map)
 
     mapInstanceRef.current = map
-    loadReports(L, map)
+
+    // District boundaries load first so pins always render on top
+    await loadDistrictBoundaries(L, map)
+    loadReports()
   }
 
-  async function loadReports(L: any, map: any) {
+  async function loadDistrictBoundaries(L: any, map: any) {
+    try {
+      let geojson: any = null
+      for (const url of DISTRICT_GEOJSON_URLS) {
+        try {
+          const res = await fetch(url)
+          if (res.ok) { geojson = await res.json(); break }
+        } catch { /* try next */ }
+      }
+      if (!geojson) return
+      L.geoJSON(geojson, {
+        style: () => ({ ...DISTRICT_STYLE }),
+        onEachFeature: (feature: any, layer: any) => {
+          // Try common property name variants from different GeoJSON sources
+          const name =
+            feature.properties?.district ||
+            feature.properties?.DISTRICT ||
+            feature.properties?.District ||
+            feature.properties?.name ||
+            feature.properties?.NAME ||
+            ''
+          if (name) layer.bindTooltip(name, { sticky: true, opacity: 0.85 })
+          layer.on({
+            mouseover: (e: any) => e.target.setStyle({ ...DISTRICT_HOVER_STYLE }),
+            mouseout:  (e: any) => e.target.setStyle({ ...DISTRICT_STYLE }),
+          })
+        },
+      }).addTo(map)
+    } catch {
+      // GeoJSON fetch failed — map works normally without district outlines
+    }
+  }
+
+  async function loadReports() {
     const { data } = await supabase
       .from('reports')
       .select('*, wards(*), issue_types(*)')
@@ -75,28 +132,30 @@ export default function MapView() {
       .limit(200)
 
     if (!data) return
-    setReports(data)
-    addMarkers(L, map, data)
+    setReports(data) // triggers useEffect([filter, reports]) which calls addMarkers
   }
 
-  function addMarkers(L: any, map: any, data: Report[]) {
+  function addMarkers(L: any, map: any, data: Report[], activeFilter: string) {
     markersRef.current.forEach(m => m.remove())
     markersRef.current = []
 
-    data.forEach(report => {
+    const filtered = activeFilter === 'all'
+      ? data
+      : data.filter(r => (r.issue_types as any)?.slug === activeFilter)
+
+    filtered.forEach(report => {
       if (!report.lat || !report.lng) return
-      const slug = (report.issue_types as any)?.slug || 'garbage'
+      const slug  = (report.issue_types as any)?.slug  || 'garbage'
       const color = ISSUE_COLORS[slug] || '#16a34a'
       const emoji = (report.issue_types as any)?.emoji || '📍'
 
       const icon = L.divIcon({
         html: `<div style="
-          background:${color};
-          width:28px;height:28px;border-radius:50% 50% 50% 0;
-          transform:rotate(-45deg);border:2px solid rgba(255,255,255,0.8);
+          background:${color};width:28px;height:28px;
+          border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+          border:2px solid rgba(255,255,255,0.8);
           display:flex;align-items:center;justify-content:center;
-          box-shadow:0 2px 8px rgba(0,0,0,0.2);
-          cursor:pointer;
+          box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;
         "><span style="transform:rotate(45deg);font-size:12px">${emoji}</span></div>`,
         className: '',
         iconSize: [28, 28],
@@ -106,7 +165,6 @@ export default function MapView() {
 
       const marker = L.marker([report.lat, report.lng], { icon })
       marker.on('click', () => setSelectedReport(report))
-
       marker.addTo(map)
       markersRef.current.push(marker)
     })
@@ -124,11 +182,9 @@ export default function MapView() {
   return (
     <div className="card overflow-hidden">
       {selectedReport && (
-        <ReportDetailModal
-          report={selectedReport}
-          onClose={() => setSelectedReport(null)}
-        />
+        <ReportDetailModal report={selectedReport} onClose={() => setSelectedReport(null)} />
       )}
+
       {/* Header */}
       <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-100">
         <div className="flex items-center gap-2 text-sm font-medium text-slate-700 min-w-0 truncate">
@@ -157,7 +213,7 @@ export default function MapView() {
         ))}
       </div>
 
-      {/* Map */}
+      {/* Map canvas */}
       <div ref={mapRef} style={{ height: '420px', width: '100%' }} />
 
       {/* Legend */}
