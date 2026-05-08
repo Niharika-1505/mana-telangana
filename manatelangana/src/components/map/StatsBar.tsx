@@ -1,11 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useLang } from '@/lib/i18n'
 
 type Stats = { total: number; open: number; resolved: number; inProgress: number }
 
 export default function StatsBar() {
   const [stats, setStats] = useState<Stats>({ total: 0, open: 0, resolved: 0, inProgress: 0 })
+  const { t } = useLang()
 
   useEffect(() => {
     async function load() {
@@ -19,7 +21,6 @@ export default function StatsBar() {
       })
     }
     load()
-    // Realtime updates
     const channel = supabase.channel('reports-stats')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, load)
       .subscribe()
@@ -27,19 +28,18 @@ export default function StatsBar() {
   }, [])
 
   const cards = [
-    { num: stats.total,      label: 'Total Reports',  labelTe: 'మొత్తం నివేదికలు',    color: 'text-green-400' },
-    { num: stats.open,       label: 'Open Issues',    labelTe: 'పెండింగ్ సమస్యలు',    color: 'text-red-400' },
-    { num: stats.resolved,   label: 'Resolved',       labelTe: 'పరిష్కరించబడింది',    color: 'text-green-400' },
-    { num: stats.inProgress, label: 'In Progress',    labelTe: 'ప్రగతిలో ఉంది',       color: 'text-amber-400' },
+    { num: stats.total,      labelKey: 'stats_total'      as const, color: 'text-green-700' },
+    { num: stats.open,       labelKey: 'stats_open'       as const, color: 'text-red-500' },
+    { num: stats.resolved,   labelKey: 'stats_resolved'   as const, color: 'text-green-600' },
+    { num: stats.inProgress, labelKey: 'stats_inprogress' as const, color: 'text-amber-500' },
   ]
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      {cards.map(({ num, label, labelTe, color }) => (
-        <div key={label} className="stat-card hover:border-green-800 transition-colors">
+      {cards.map(({ num, labelKey, color }) => (
+        <div key={labelKey} className="stat-card hover:border-green-300 transition-colors">
           <div className={`stat-num ${color}`}>{num}</div>
-          <div className="stat-label">{label}</div>
-          <div className="te text-[10px] text-[#5a7a5a] mt-0.5">{labelTe}</div>
+          <div className="stat-label">{t(labelKey)}</div>
         </div>
       ))}
     </div>

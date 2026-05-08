@@ -6,7 +6,7 @@ import ReportDetailPanel from './ReportDetailPanel'
 import toast from 'react-hot-toast'
 import {
   Search, Download, Trash2, ChevronLeft, ChevronRight,
-  Copy, FlaskConical, CheckSquare, Square,
+  Copy, FlaskConical, CheckSquare, Square, Flag,
 } from 'lucide-react'
 
 const PAGE_SIZE = 25
@@ -25,6 +25,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   const [issueFilter, setIssueFilter] = useState('')
   const [severityFilter, setSeverityFilter] = useState('')
   const [showTest, setShowTest] = useState(false)
+  const [showReporterFixed, setShowReporterFixed] = useState(false)
   const [page, setPage] = useState(0)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [detailReport, setDetailReport] = useState<Report | null>(null)
@@ -48,6 +49,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
         if (severityFilter) query = query.eq('severity', severityFilter)
         if (issueFilter) query = query.eq('issue_type_id', issueFilter)
         if (!showTest) query = (query as any).eq('is_test', false)
+        if (showReporterFixed) query = (query as any).not('reporter_says_fixed_at', 'is', null)
 
         if (mandalFilter) {
           const ids = wards.filter(w => w.mandal_en === mandalFilter).map(w => w.id)
@@ -72,7 +74,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
     setPage(0)
     setSelectedIds(new Set())
     return () => { cancelled = true }
-  }, [statusFilter, mandalFilter, issueFilter, severityFilter, showTest, refreshKey, wards])
+  }, [statusFilter, mandalFilter, issueFilter, severityFilter, showTest, showReporterFixed, refreshKey, wards])
 
   useEffect(() => { setPage(0) }, [search])
 
@@ -99,11 +101,8 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   }
 
   function toggleSelectAll() {
-    if (allPageSelected) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(pageReports.map(r => r.id)))
-    }
+    if (allPageSelected) setSelectedIds(new Set())
+    else setSelectedIds(new Set(pageReports.map(r => r.id)))
   }
 
   async function updateStatus(id: string, status: string) {
@@ -119,20 +118,14 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   async function deleteReport(id: string) {
     const { error } = await supabase.from('reports').delete().eq('id', id)
     if (error) toast.error('Delete failed')
-    else {
-      toast.success('Report deleted')
-      setConfirmDeleteId(null)
-      setRefreshKey(k => k + 1)
-    }
+    else { toast.success('Report deleted'); setConfirmDeleteId(null); setRefreshKey(k => k + 1) }
   }
 
   async function markDuplicate(id: string) {
     const q: any = supabase.from('reports')
     const { error } = await q.update({
-      is_duplicate: true,
-      status: 'rejected',
-      resolution_note: 'Marked as duplicate',
-      updated_at: new Date().toISOString(),
+      is_duplicate: true, status: 'rejected',
+      resolution_note: 'Marked as duplicate', updated_at: new Date().toISOString(),
     }).eq('id', id)
     if (error) toast.error('Failed — run migration 002 first')
     else { toast.success('Marked as duplicate'); setRefreshKey(k => k + 1) }
@@ -154,12 +147,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
       updated_at: new Date().toISOString(),
     }).in('id', Array.from(selectedIds))
     if (error) toast.error('Bulk update failed')
-    else {
-      toast.success(`${selectedIds.size} reports → ${bulkStatus}`)
-      setSelectedIds(new Set())
-      setBulkStatus('')
-      setRefreshKey(k => k + 1)
-    }
+    else { toast.success(`${selectedIds.size} reports → ${bulkStatus}`); setSelectedIds(new Set()); setBulkStatus(''); setRefreshKey(k => k + 1) }
   }
 
   async function deleteAllTestData() {
@@ -173,8 +161,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   function exportCSV() {
     const headers = ['ID', 'Status', 'Is Test', 'Is Duplicate', 'Issue Type', 'Ward', 'Mandal', 'Severity', 'Description', 'Landmark', 'Lat', 'Lng', 'Upvotes', 'Created At', 'Resolved At']
     const rows = filteredReports.map(r => [
-      r.id,
-      r.status,
+      r.id, r.status,
       (r as any).is_test ? 'Yes' : 'No',
       (r as any).is_duplicate ? 'Yes' : 'No',
       (r.issue_types as any)?.name_en || '',
@@ -183,38 +170,32 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
       r.severity,
       (r.description || '').replace(/[\n,]/g, ' '),
       (r.landmark || '').replace(/,/g, ' '),
-      r.lat ?? '',
-      r.lng ?? '',
-      r.upvotes,
-      r.created_at,
-      r.resolved_at || '',
+      r.lat ?? '', r.lng ?? '', r.upvotes, r.created_at, r.resolved_at || '',
     ])
     const csv = [headers, ...rows].map(row => row.map(v => `"${v}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
     a.download = `reports-${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+    document.body.appendChild(a); a.click(); document.body.removeChild(a)
   }
 
   return (
     <div>
-      {/* Search + Filters row */}
+      {/* Search + Filters */}
       <div className="flex flex-wrap gap-2 mb-3">
         <div className="relative flex-1 min-w-[180px]">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5a7a5a]" />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search description, landmark, ward..."
-            className="w-full bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-sm rounded-xl pl-8 pr-3 py-2 focus:outline-none focus:border-green-700"
+            className="w-full bg-white border border-slate-200 text-slate-700 text-sm rounded-xl pl-8 pr-3 py-2 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
           />
         </div>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="filter-select">
           <option value="">All Status</option>
-          {['open', 'in_progress', 'resolved', 'rejected'].map(s => (
+          {['open', 'in_progress', 'resolved', 'rejected', 'inactive'].map(s => (
             <option key={s} value={s}>{s.replace('_', ' ')}</option>
           ))}
         </select>
@@ -224,7 +205,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
         </select>
         <select value={issueFilter} onChange={e => setIssueFilter(e.target.value)} className="filter-select">
           <option value="">All Issues</option>
-          {issueTypes.map(t => <option key={t.id} value={t.id}>{t.emoji} {t.name_en}</option>)}
+          {issueTypes.map(tp => <option key={tp.id} value={tp.id}>{tp.emoji} {tp.name_en}</option>)}
         </select>
         <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} className="filter-select">
           <option value="">All Severity</option>
@@ -235,51 +216,47 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
       {/* Second row: test toggle + bulk + export */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-[#9ab89a] cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={showTest}
-              onChange={e => setShowTest(e.target.checked)}
-              className="accent-green-500"
-            />
-            <FlaskConical size={13} className="text-yellow-400" />
+          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+            <input type="checkbox" checked={showTest} onChange={e => setShowTest(e.target.checked)} className="accent-green-600" />
+            <FlaskConical size={13} className="text-amber-500" />
             Show test submissions
           </label>
           {showTest && (
             <button
               onClick={deleteAllTestData}
-              className="text-xs text-red-400 hover:text-red-300 border border-red-900 hover:border-red-700 px-2 py-1 rounded-lg transition-colors"
+              className="text-xs text-red-600 hover:text-red-700 border border-red-200 hover:border-red-400 px-2 py-1 rounded-lg transition-colors"
             >
               Bulk delete test data
             </button>
           )}
+          <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer select-none">
+            <input type="checkbox" checked={showReporterFixed} onChange={e => setShowReporterFixed(e.target.checked)} className="accent-green-600" />
+            <Flag size={13} className="text-green-500" />
+            Reporter says fixed
+          </label>
         </div>
 
         <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (
             <>
-              <span className="text-xs text-[#5a7a5a]">{selectedIds.size} selected</span>
-              <select
-                value={bulkStatus}
-                onChange={e => setBulkStatus(e.target.value)}
-                className="filter-select text-xs"
-              >
+              <span className="text-xs text-slate-400">{selectedIds.size} selected</span>
+              <select value={bulkStatus} onChange={e => setBulkStatus(e.target.value)} className="filter-select text-xs">
                 <option value="">Change status…</option>
-                {['open', 'in_progress', 'resolved', 'rejected'].map(s => (
+                {['open', 'in_progress', 'resolved', 'rejected', 'inactive'].map(s => (
                   <option key={s} value={s}>{s.replace('_', ' ')}</option>
                 ))}
               </select>
               {bulkStatus && (
-                <button onClick={bulkUpdateStatus} className="text-xs bg-green-800 hover:bg-green-700 text-green-100 px-2 py-1 rounded-lg transition-colors">
+                <button onClick={bulkUpdateStatus} className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-lg transition-colors">
                   Apply
                 </button>
               )}
-              <button onClick={bulkDelete} className="text-xs text-red-400 hover:text-red-300 border border-red-900 hover:border-red-700 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
+              <button onClick={bulkDelete} className="text-xs text-red-600 hover:text-red-700 border border-red-200 hover:border-red-400 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
                 <Trash2 size={12} /> Delete
               </button>
             </>
           )}
-          <button onClick={exportCSV} className="flex items-center gap-1.5 text-xs text-[#9ab89a] border border-[#2d442d] hover:border-green-700 px-3 py-1.5 rounded-lg transition-colors">
+          <button onClick={exportCSV} className="flex items-center gap-1.5 text-xs text-slate-600 border border-slate-200 hover:border-green-400 hover:text-green-700 px-3 py-1.5 rounded-lg transition-colors">
             <Download size={13} /> Export CSV ({filteredReports.length})
           </button>
         </div>
@@ -290,47 +267,47 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#2d442d] bg-[#1e2e1e]">
+              <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="px-3 py-2.5">
-                  <button onClick={toggleSelectAll} className="text-[#5a7a5a] hover:text-[#9ab89a]">
+                  <button onClick={toggleSelectAll} className="text-slate-400 hover:text-slate-600">
                     {allPageSelected ? <CheckSquare size={14} /> : <Square size={14} />}
                   </button>
                 </th>
                 {['Time', 'Issue', 'Ward / Mandal', 'Severity', 'Status', 'Flags', 'Photo', 'Status Action', 'Actions'].map(h => (
-                  <th key={h} className="px-3 py-2.5 text-left text-[#5a7a5a] uppercase tracking-wider font-semibold whitespace-nowrap">{h}</th>
+                  <th key={h} className="px-3 py-2.5 text-left text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={10} className="px-4 py-10 text-center text-[#5a7a5a]">Loading reports…</td></tr>
+                <tr><td colSpan={10} className="px-4 py-10 text-center text-slate-400">Loading reports…</td></tr>
               ) : pageReports.length === 0 ? (
-                <tr><td colSpan={10} className="px-4 py-10 text-center text-[#5a7a5a]">No reports found</td></tr>
+                <tr><td colSpan={10} className="px-4 py-10 text-center text-slate-400">No reports found</td></tr>
               ) : pageReports.map(r => {
                 const status = STATUS_CONFIG[r.status as keyof typeof STATUS_CONFIG]
                 const isSelected = selectedIds.has(r.id)
                 return (
                   <tr
                     key={r.id}
-                    className={`border-b border-[#1e2e1e] transition-colors cursor-pointer
-                      ${isSelected ? 'bg-green-950/20' : 'hover:bg-[#1a2a1a]'}
-                      ${(r as any).is_test ? 'border-l-2 border-l-yellow-700' : ''}
+                    className={`border-b border-slate-100 transition-colors cursor-pointer
+                      ${isSelected ? 'bg-green-50' : 'hover:bg-slate-50'}
+                      ${(r as any).is_test ? 'border-l-2 border-l-amber-400' : ''}
                     `}
                     onClick={() => setDetailReport(r)}
                   >
                     <td className="px-3 py-3" onClick={e => { e.stopPropagation(); toggleSelect(r.id) }}>
-                      {isSelected ? <CheckSquare size={14} className="text-green-400" /> : <Square size={14} className="text-[#5a7a5a]" />}
+                      {isSelected ? <CheckSquare size={14} className="text-green-600" /> : <Square size={14} className="text-slate-300" />}
                     </td>
-                    <td className="px-3 py-3 font-mono text-[#5a7a5a] whitespace-nowrap">{timeAgo(r.created_at)}</td>
-                    <td className="px-3 py-3">
+                    <td className="px-3 py-3 font-mono text-slate-400 whitespace-nowrap">{timeAgo(r.created_at)}</td>
+                    <td className="px-3 py-3 text-slate-700">
                       <span>{(r.issue_types as any)?.emoji} {(r.issue_types as any)?.name_en}</span>
                     </td>
-                    <td className="px-3 py-3 text-[#9ab89a]">
-                      <div>{(r.wards as any)?.ward_name_en}</div>
-                      <div className="text-[#5a7a5a]">{(r.wards as any)?.mandal_en}</div>
+                    <td className="px-3 py-3">
+                      <div className="text-slate-700">{(r.wards as any)?.ward_name_en}</div>
+                      <div className="text-slate-400">{(r.wards as any)?.mandal_en}</div>
                     </td>
                     <td className="px-3 py-3">
-                      <span className={r.severity === 'high' ? 'text-red-400' : r.severity === 'medium' ? 'text-amber-400' : 'text-green-400'}>
+                      <span className={r.severity === 'high' ? 'text-red-600' : r.severity === 'medium' ? 'text-amber-600' : 'text-green-600'}>
                         {r.severity}
                       </span>
                     </td>
@@ -342,46 +319,45 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex gap-1">
-                        {(r as any).is_test && <span title="Test" className="text-yellow-500"><FlaskConical size={12} /></span>}
-                        {(r as any).is_duplicate && <span title="Duplicate" className="text-gray-500"><Copy size={12} /></span>}
+                        {(r as any).is_test && <span title="Test" className="text-amber-500"><FlaskConical size={12} /></span>}
+                        {(r as any).is_duplicate && <span title="Duplicate" className="text-slate-400"><Copy size={12} /></span>}
+                        {(r as any).reporter_says_fixed_at && (
+                          <span title={`Reporter says fixed on ${new Date((r as any).reporter_says_fixed_at).toLocaleDateString('en-IN')}`} className="text-green-500">
+                            <Flag size={12} />
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-3 py-3">
                       {r.photo_url && (
-                        <a href={r.photo_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-green-400 hover:underline">View</a>
+                        <a href={r.photo_url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-green-600 hover:underline">View</a>
                       )}
                     </td>
                     <td className="px-3 py-3" onClick={e => e.stopPropagation()}>
                       <select
                         value={r.status}
                         onChange={e => updateStatus(r.id, e.target.value)}
-                        className="bg-[#1e2e1e] border border-[#2d442d] text-[#9ab89a] text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-green-700"
+                        className="bg-white border border-slate-200 text-slate-700 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-green-500"
                       >
                         <option value="open">Open</option>
                         <option value="in_progress">In Progress</option>
                         <option value="resolved">Resolved</option>
                         <option value="rejected">Rejected</option>
+                        <option value="inactive">Inactive</option>
                       </select>
                     </td>
                     <td className="px-3 py-3" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
-                        <button
-                          title="Mark as duplicate"
-                          onClick={() => markDuplicate(r.id)}
-                          className="text-[#5a7a5a] hover:text-amber-400 p-1 rounded transition-colors"
-                        >
+                        <button title="Mark as duplicate" onClick={() => markDuplicate(r.id)} className="text-slate-400 hover:text-amber-500 p-1 rounded transition-colors">
                           <Copy size={13} />
                         </button>
                         {confirmDeleteId === r.id ? (
                           <div className="flex items-center gap-1">
-                            <button onClick={() => deleteReport(r.id)} className="text-red-400 hover:text-red-300 text-xs font-semibold px-1">Yes</button>
-                            <button onClick={() => setConfirmDeleteId(null)} className="text-[#5a7a5a] hover:text-[#9ab89a] text-xs px-1">No</button>
+                            <button onClick={() => deleteReport(r.id)} className="text-red-600 hover:text-red-700 text-xs font-semibold px-1">Yes</button>
+                            <button onClick={() => setConfirmDeleteId(null)} className="text-slate-400 hover:text-slate-600 text-xs px-1">No</button>
                           </div>
                         ) : (
-                          <button
-                            onClick={() => setConfirmDeleteId(r.id)}
-                            className="text-[#5a7a5a] hover:text-red-400 p-1 rounded transition-colors"
-                          >
+                          <button onClick={() => setConfirmDeleteId(r.id)} className="text-slate-400 hover:text-red-600 p-1 rounded transition-colors">
                             <Trash2 size={13} />
                           </button>
                         )}
@@ -396,7 +372,7 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between text-xs text-[#5a7a5a]">
+      <div className="flex items-center justify-between text-xs text-slate-400">
         <span>
           {filteredReports.length} report{filteredReports.length !== 1 ? 's' : ''}
           {search ? ' (filtered)' : ''}
@@ -407,14 +383,14 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
             <button
               disabled={page === 0}
               onClick={() => setPage(p => p - 1)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#2d442d] disabled:opacity-30 hover:border-green-700 transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 disabled:opacity-30 hover:border-green-400 transition-colors"
             >
               <ChevronLeft size={13} /> Previous
             </button>
             <button
               disabled={page >= totalPages - 1}
               onClick={() => setPage(p => p + 1)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#2d442d] disabled:opacity-30 hover:border-green-700 transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 disabled:opacity-30 hover:border-green-400 transition-colors"
             >
               Next <ChevronRight size={13} />
             </button>
@@ -422,7 +398,6 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
         )}
       </div>
 
-      {/* Detail panel */}
       {detailReport && (
         <ReportDetailPanel
           report={detailReport}

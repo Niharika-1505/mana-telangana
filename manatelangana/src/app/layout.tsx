@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
+import { LanguageProvider } from '@/lib/i18n'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -30,15 +31,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#1a4a2a" />
         <link rel="manifest" href="/manifest.json" />
       </head>
-      <body className="bg-gray-950 text-gray-100 font-sans antialiased">
-        <Toaster
-          position="bottom-right"
-          toastOptions={{
-            style: { background: '#1a271a', color: '#e8f5e8', border: '1px solid #2d442d' },
-            success: { iconTheme: { primary: '#4ade80', secondary: '#0f1a0f' } },
-          }}
-        />
-        {children}
+      <body className="bg-slate-50 text-slate-900 font-sans antialiased">
+        <LanguageProvider>
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: { background: '#ffffff', color: '#0f172a', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' },
+              success: { iconTheme: { primary: '#16a34a', secondary: '#f0fdf4' } },
+            }}
+          />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   )
