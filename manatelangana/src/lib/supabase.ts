@@ -64,7 +64,6 @@ export type IssueType = {
   emoji: string
   description: string
   sort_order: number
-  is_active: boolean
 }
 
 export type MlaLeaderboard = {

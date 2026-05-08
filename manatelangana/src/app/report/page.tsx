@@ -93,7 +93,7 @@ export default function ReportPage() {
       ])
       if (typesErr) console.error('issue_types load error:', typesErr)
       if (wardsErr) console.error('wards load error:', wardsErr)
-      if (types) setIssueTypes(types.filter(t => t.is_active !== false))
+      if (types) setIssueTypes(types)
       if (wardData) setWards(wardData)
     }
     load()
