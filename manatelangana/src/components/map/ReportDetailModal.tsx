@@ -6,6 +6,7 @@ import { getFingerprint, STATUS_CONFIG, timeAgo } from '@/lib/utils'
 import { useLang } from '@/lib/i18n'
 import { X, Camera, CheckCircle2, XCircle, Users, MapPin, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import AccountabilityChain from '@/components/AccountabilityChain'
 
 interface Props {
   report: Report
@@ -121,6 +122,13 @@ export default function ReportDetailModal({ report, onClose }: Props) {
             <span className="text-slate-300">·</span>
             {timeAgo(report.created_at)}
           </div>
+
+          {/* Accountability chain */}
+          <AccountabilityChain
+            wardId={report.ward_id}
+            lat={report.lat}
+            lng={report.lng}
+          />
 
           {/* Description */}
           {report.description && (
