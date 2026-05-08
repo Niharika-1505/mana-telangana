@@ -23,6 +23,8 @@ const ISSUE_COLORS: Record<string, string> = {
 
 const NALGONDA_CENTER: [number, number] = [17.05, 79.27]
 const DEFAULT_ZOOM = 9
+// Nalgonda district bounding box — roughly 16.3–17.7 lat, 78.6–80.2 lng with padding
+const NALGONDA_BOUNDS: [[number, number], [number, number]] = [[15.8, 78.1], [18.2, 80.7]]
 
 export default function MapView() {
   const mapRef = useRef<any>(null)
@@ -55,6 +57,9 @@ export default function MapView() {
       center: NALGONDA_CENTER,
       zoom: DEFAULT_ZOOM,
       zoomControl: true,
+      maxBounds: NALGONDA_BOUNDS,
+      maxBoundsViscosity: 1.0,
+      minZoom: 8,
     })
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -76,14 +81,25 @@ export default function MapView() {
 
     if (!data) return
     setReports(data)
-    addMarkers(L, map, data)
+    addMarkers(L, map, data, filter)
   }
 
-  function addMarkers(L: any, map: any, data: Report[]) {
+  useEffect(() => {
+    if (!mapInstanceRef.current) return
+    import('leaflet').then(({ default: L }) => {
+      addMarkers(L, mapInstanceRef.current, reports, filter)
+    })
+  }, [filter, reports])
+
+  function addMarkers(L: any, map: any, data: Report[], activeFilter: string) {
     markersRef.current.forEach(m => m.remove())
     markersRef.current = []
 
-    data.forEach(report => {
+    const filtered = activeFilter === 'all'
+      ? data
+      : data.filter(r => (r.issue_types as any)?.slug === activeFilter)
+
+    filtered.forEach(report => {
       if (!report.lat || !report.lng) return
       const slug = (report.issue_types as any)?.slug || 'garbage'
       const color = ISSUE_COLORS[slug] || '#16a34a'
