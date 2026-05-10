@@ -56,29 +56,26 @@ export default function ContributionsTab() {
   }
 
   async function updateStatus(id: string, status: 'approved' | 'rejected') {
-    const { error } = await supabase.from('ward_contributions').update({ status }).eq('id', id)
-    if (error) { toast.error('Update failed'); return }
+    const path = status === 'approved'
+      ? '/api/admin/contributions/approve'
+      : '/api/admin/contributions/reject'
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    if (!res.ok) { toast.error('Update failed'); return }
     setContributions(p => p.map(c => c.id === id ? { ...c, status } : c))
     toast.success(`Contribution ${status}`)
-
-    if (status === 'approved') {
-      const contrib = contributions.find(c => c.id === id)
-      if (contrib?.ward_number) {
-        await supabase.from('wards').update({
-          ward_councillor: contrib.councillor_name,
-          councillor_party: contrib.councillor_party,
-          coverage_status: 'live',
-        }).eq('ward_number', contrib.ward_number)
-      }
-    }
   }
 
   async function saveNotes(id: string) {
-    const { error } = await supabase
-      .from('ward_contributions')
-      .update({ admin_notes: notesValue.trim() || null })
-      .eq('id', id)
-    if (error) { toast.error('Save failed'); return }
+    const res = await fetch('/api/admin/contributions/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, admin_notes: notesValue.trim() || null }),
+    })
+    if (!res.ok) { toast.error('Save failed'); return }
     setContributions(p => p.map(c => c.id === id ? { ...c, admin_notes: notesValue.trim() || null } : c))
     toast.success('Notes saved')
     setEditingNotes(null)

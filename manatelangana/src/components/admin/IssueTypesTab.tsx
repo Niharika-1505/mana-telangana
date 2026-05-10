@@ -39,15 +39,23 @@ export default function IssueTypesTab() {
     const { id, field } = editCell
     const parsed: any = field === 'sort_order' ? parseInt(editValue) || 0 : editValue
 
-    const { error } = await supabase.from('issue_types').update({ [field]: parsed }).eq('id', id)
-    if (error) toast.error('Save failed')
+    const res = await fetch('/api/admin/issue-types/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, [field]: parsed }),
+    })
+    if (!res.ok) toast.error('Save failed')
     else setTypes(prev => prev.map(t => t.id === id ? { ...t, [field]: parsed } : t))
     setEditCell(null)
   }
 
   async function toggleActive(type: IssueType) {
-    const { error } = await supabase.from('issue_types').update({ is_active: !type.is_active }).eq('id', type.id)
-    if (error) toast.error('Update failed')
+    const res = await fetch('/api/admin/issue-types/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: type.id, is_active: !type.is_active }),
+    })
+    if (!res.ok) toast.error('Update failed')
     else setTypes(prev => prev.map(t => t.id === type.id ? { ...t, is_active: !t.is_active } : t))
   }
 
@@ -56,12 +64,16 @@ export default function IssueTypesTab() {
       toast.error('Slug, name, and emoji are required')
       return
     }
-    const { error } = await supabase.from('issue_types').insert({
-      slug: newType.slug.toLowerCase().replace(/\s+/g, '-'),
-      name_en: newType.name_en, name_te: newType.name_te, emoji: newType.emoji,
-      description: newType.description, sort_order: newType.sort_order, is_active: true,
+    const res = await fetch('/api/admin/issue-types/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug: newType.slug.toLowerCase().replace(/\s+/g, '-'),
+        name_en: newType.name_en, name_te: newType.name_te, emoji: newType.emoji,
+        description: newType.description, sort_order: newType.sort_order, is_active: true,
+      }),
     })
-    if (error) toast.error('Add failed: ' + error.message)
+    if (!res.ok) { const d = await res.json(); toast.error('Add failed: ' + (d.error || res.status)) }
     else { toast.success('Issue type added'); setAdding(false); setNewType({ ...EMPTY_NEW }); loadTypes() }
   }
 

@@ -106,55 +106,66 @@ export default function ReportsTab({ wards, issueTypes }: Props) {
   }
 
   async function updateStatus(id: string, status: string) {
-    const { error } = await supabase.from('reports').update({
-      status,
-      resolved_at: status === 'resolved' ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString(),
-    }).eq('id', id)
-    if (error) toast.error('Update failed')
+    const res = await fetch('/api/admin/reports/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status }),
+    })
+    if (!res.ok) toast.error('Update failed')
     else setAllReports(prev => prev.map(r => r.id === id ? { ...r, status: status as any } : r))
   }
 
   async function deleteReport(id: string) {
-    const { error } = await supabase.from('reports').delete().eq('id', id)
-    if (error) toast.error('Delete failed')
+    const res = await fetch('/api/admin/reports/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    if (!res.ok) toast.error('Delete failed')
     else { toast.success('Report deleted'); setConfirmDeleteId(null); setRefreshKey(k => k + 1) }
   }
 
   async function markDuplicate(id: string) {
-    const q: any = supabase.from('reports')
-    const { error } = await q.update({
-      is_duplicate: true, status: 'rejected',
-      resolution_note: 'Marked as duplicate', updated_at: new Date().toISOString(),
-    }).eq('id', id)
-    if (error) toast.error('Failed — run migration 002 first')
+    const res = await fetch('/api/admin/reports/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, is_duplicate: true, status: 'rejected', resolution_note: 'Marked as duplicate' }),
+    })
+    if (!res.ok) toast.error('Failed')
     else { toast.success('Marked as duplicate'); setRefreshKey(k => k + 1) }
   }
 
   async function bulkDelete() {
     if (selectedIds.size === 0) return
     if (!window.confirm(`Permanently delete ${selectedIds.size} report(s)?`)) return
-    const { error } = await supabase.from('reports').delete().in('id', Array.from(selectedIds))
-    if (error) toast.error('Bulk delete failed')
+    const res = await fetch('/api/admin/reports/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: Array.from(selectedIds) }),
+    })
+    if (!res.ok) toast.error('Bulk delete failed')
     else { toast.success(`${selectedIds.size} reports deleted`); setSelectedIds(new Set()); setRefreshKey(k => k + 1) }
   }
 
   async function bulkUpdateStatus() {
     if (!bulkStatus || selectedIds.size === 0) return
-    const { error } = await supabase.from('reports').update({
-      status: bulkStatus,
-      resolved_at: bulkStatus === 'resolved' ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString(),
-    }).in('id', Array.from(selectedIds))
-    if (error) toast.error('Bulk update failed')
+    const res = await fetch('/api/admin/reports/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: Array.from(selectedIds), status: bulkStatus }),
+    })
+    if (!res.ok) toast.error('Bulk update failed')
     else { toast.success(`${selectedIds.size} reports → ${bulkStatus}`); setSelectedIds(new Set()); setBulkStatus(''); setRefreshKey(k => k + 1) }
   }
 
   async function deleteAllTestData() {
     if (!window.confirm('Delete ALL test submissions permanently?')) return
-    const q: any = supabase.from('reports')
-    const { error } = await q.delete().eq('is_test', true)
-    if (error) toast.error('Failed — run migration 002 first')
+    const res = await fetch('/api/admin/reports/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ all_test: true }),
+    })
+    if (!res.ok) toast.error('Failed')
     else { toast.success('All test data deleted'); setRefreshKey(k => k + 1) }
   }
 

@@ -72,6 +72,17 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
 All are `NEXT_PUBLIC_` (browser-exposed). See `DEPLOYMENT.md` for Supabase and Cloudinary setup steps.
 
+**Server-only (never expose with NEXT_PUBLIC_ prefix):**
+
+```
+SUPABASE_SERVICE_ROLE_KEY
+```
+
+Required for all admin write operations (reports, wards, issue_types, MLAs, MPs, contributions).
+Find it in: **Supabase dashboard → Settings → API → service_role (secret)**.
+Add to Vercel before running migration 008, or admin writes will return 500.
+Only imported in `src/lib/supabase-admin.ts` — never import that file from `src/components/`.
+
 ## Git Workflow
 
 - Always create a new branch from `main` before making any changes

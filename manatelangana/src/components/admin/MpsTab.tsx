@@ -76,15 +76,23 @@ export default function MpsTab() {
     const f = FIELDS.find(x => x.key === field)
     let val: any = editValue.trim() || null
     if (f?.numeric) val = editValue === '' ? null : parseInt(editValue)
-    const { error } = await supabase.from('mp').update({ [field]: val }).eq('id', id)
-    if (error) toast.error('Save failed')
+    const res = await fetch('/api/admin/mps/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, [field]: val }),
+    })
+    if (!res.ok) toast.error('Save failed')
     else { toast.success('MP updated'); setMps(p => p.map(m => m.id === id ? { ...m, [field]: val } : m)) }
     setEditCell(null)
   }
 
   async function toggleActive(mp: MP) {
-    const { error } = await supabase.from('mp').update({ is_active: !mp.is_active }).eq('id', mp.id)
-    if (error) { toast.error('Update failed'); return }
+    const res = await fetch('/api/admin/mps/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: mp.id, is_active: !mp.is_active }),
+    })
+    if (!res.ok) { toast.error('Update failed'); return }
     setMps(p => p.map(m => m.id === mp.id ? { ...m, is_active: !mp.is_active } : m))
     toast.success(mp.is_active ? 'MP deactivated' : 'MP reactivated')
   }
@@ -93,28 +101,40 @@ export default function MpsTab() {
     if (!newMp.name_en?.trim() || !newMp.constituency_en?.trim()) {
       toast.error('Name (EN) and Constituency are required'); return
     }
-    const { error } = await supabase.from('mp').insert({
-      name_en: newMp.name_en.trim(), name_te: newMp.name_te || null,
-      party: newMp.party || null, constituency_en: newMp.constituency_en.trim(),
-      constituency_te: newMp.constituency_te || null,
-      lok_sabha_seat_number: newMp.lok_sabha_seat_number ? parseInt(newMp.lok_sabha_seat_number) : null,
-      phone: newMp.phone || null, email: newMp.email || null,
+    const res = await fetch('/api/admin/mps/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name_en: newMp.name_en.trim(), name_te: newMp.name_te || null,
+        party: newMp.party || null, constituency_en: newMp.constituency_en.trim(),
+        constituency_te: newMp.constituency_te || null,
+        lok_sabha_seat_number: newMp.lok_sabha_seat_number ? parseInt(newMp.lok_sabha_seat_number) : null,
+        phone: newMp.phone || null, email: newMp.email || null,
+      }),
     })
-    if (error) { toast.error('Add failed: ' + error.message); return }
+    if (!res.ok) { const d = await res.json(); toast.error('Add failed: ' + (d.error || res.status)); return }
     toast.success('MP added successfully')
     setAdding(false); setNewMp({ ...EMPTY }); load()
   }
 
   async function deactivateInstead(mp: MP) {
-    const { error } = await supabase.from('mp').update({ is_active: false }).eq('id', mp.id)
-    if (error) { toast.error('Update failed'); return }
+    const res = await fetch('/api/admin/mps/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: mp.id, is_active: false }),
+    })
+    if (!res.ok) { toast.error('Update failed'); return }
     setMps(p => p.map(m => m.id === mp.id ? { ...m, is_active: false } : m))
     toast.success('MP deactivated'); setDeleteConfirm(null)
   }
 
   async function confirmDelete(mp: MP) {
-    const { error } = await supabase.from('mp').delete().eq('id', mp.id)
-    if (error) { toast.error('Delete failed: ' + error.message); return }
+    const res = await fetch('/api/admin/mps/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: mp.id }),
+    })
+    if (!res.ok) { const d = await res.json(); toast.error('Delete failed: ' + (d.error || res.status)); return }
     setMps(p => p.filter(m => m.id !== mp.id))
     toast.success('MP deleted'); setDeleteConfirm(null)
   }
