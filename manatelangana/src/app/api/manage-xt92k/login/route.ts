@@ -39,10 +39,13 @@ export async function POST(request: Request) {
   }
 
   const { password } = await request.json()
-  const adminPassword =
-    process.env.ADMIN_PASSWORD ||
-    process.env.NEXT_PUBLIC_ADMIN_PASSWORD ||
-    'ManaTelangana@2026'
+  const adminPassword = process.env.ADMIN_PASSWORD
+  if (!adminPassword) {
+    return NextResponse.json(
+      { error: 'Server misconfigured' },
+      { status: 500 }
+    )
+  }
 
   if (password !== adminPassword) {
     // Artificial delay — makes each guess take ≥500 ms
