@@ -56,8 +56,12 @@ export default function WardsTab() {
     if (fieldDef?.numeric) parsed = editValue === '' ? null : parseFloat(editValue)
     if (field === 'ward_number') parsed = parseInt(editValue)
 
-    const { error } = await supabase.from('wards').update({ [field]: parsed }).eq('id', wardId)
-    if (error) toast.error('Save failed: ' + error.message)
+    const res = await fetch('/api/admin/wards/upsert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wards: [{ id: wardId, [field]: parsed }] }),
+    })
+    if (!res.ok) toast.error('Save failed')
     else setWards(prev => prev.map(w => w.id === wardId ? { ...w, [field]: parsed } : w))
     setEditCell(null)
   }
@@ -68,8 +72,12 @@ export default function WardsTab() {
       ? `Ward "${ward.ward_name_en}" has ${count} report(s). Deleting will orphan those reports. Continue?`
       : `Delete ward "${ward.ward_name_en}"?`
     if (!window.confirm(warningMsg)) return
-    const { error } = await supabase.from('wards').delete().eq('id', ward.id)
-    if (error) toast.error('Delete failed')
+    const res = await fetch('/api/admin/wards/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: ward.id }),
+    })
+    if (!res.ok) toast.error('Delete failed')
     else { toast.success('Ward deleted'); setWards(prev => prev.filter(w => w.id !== ward.id)) }
   }
 
@@ -78,16 +86,20 @@ export default function WardsTab() {
       toast.error('Ward number and English name are required')
       return
     }
-    const { error } = await supabase.from('wards').insert({
-      ward_number: parseInt(newWard.ward_number), ward_name_en: newWard.ward_name_en,
-      ward_name_te: newWard.ward_name_te, mandal_en: newWard.mandal_en, mandal_te: newWard.mandal_te,
-      constituency_en: newWard.constituency_en, mla_name: newWard.mla_name, mla_party: newWard.mla_party,
-      mp_name: newWard.mp_name, mp_constituency: newWard.mp_constituency,
-      lat: newWard.lat ? parseFloat(newWard.lat) : null,
-      lng: newWard.lng ? parseFloat(newWard.lng) : null,
-      district: 'Nalgonda',
+    const res = await fetch('/api/admin/wards/upsert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wards: [{
+        ward_number: parseInt(newWard.ward_number), ward_name_en: newWard.ward_name_en,
+        ward_name_te: newWard.ward_name_te, mandal_en: newWard.mandal_en, mandal_te: newWard.mandal_te,
+        constituency_en: newWard.constituency_en, mla_name: newWard.mla_name, mla_party: newWard.mla_party,
+        mp_name: newWard.mp_name, mp_constituency: newWard.mp_constituency,
+        lat: newWard.lat ? parseFloat(newWard.lat) : null,
+        lng: newWard.lng ? parseFloat(newWard.lng) : null,
+        district: 'Nalgonda',
+      }] }),
     })
-    if (error) toast.error('Add failed: ' + error.message)
+    if (!res.ok) { const d = await res.json(); toast.error('Add failed: ' + (d.error || res.status)) }
     else { toast.success('Ward added'); setAdding(false); setNewWard({ ...EMPTY_NEW }); loadWards() }
   }
 
@@ -112,8 +124,12 @@ export default function WardsTab() {
       mla_name: r.mla_name, mla_party: r.mla_party, mp_name: r.mp_name, mp_constituency: r.mp_constituency,
       lat: r.lat ? parseFloat(r.lat) : null, lng: r.lng ? parseFloat(r.lng) : null, district: 'Nalgonda',
     }))
-    const { error } = await supabase.from('wards').upsert(rows, { onConflict: 'ward_number' })
-    if (error) toast.error('Upload failed: ' + error.message)
+    const res = await fetch('/api/admin/wards/upsert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wards: rows }),
+    })
+    if (!res.ok) { const d = await res.json(); toast.error('Upload failed: ' + (d.error || res.status)) }
     else { toast.success(`${rows.length} wards uploaded`); loadWards() }
   }
 

@@ -69,8 +69,12 @@ export default function WardMembersTab() {
     if (!editCell) return
     const { id, field } = editCell
     const val = editValue.trim() || null
-    const { error } = await supabase.from('wards').update({ [field]: val }).eq('id', id)
-    if (error) toast.error('Save failed')
+    const res = await fetch('/api/admin/wards/upsert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wards: [{ id, [field]: val }] }),
+    })
+    if (!res.ok) toast.error('Save failed')
     else {
       toast.success('Ward updated')
       setWards(p => p.map(w => w.id === id ? { ...w, [field]: val } : w))
@@ -111,19 +115,25 @@ export default function WardMembersTab() {
       const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''))
       return headers.reduce((obj, h, i) => ({ ...obj, [h]: values[i] || '' }), {} as Record<string, string>)
     })
-    let updated = 0
+    const rows: Record<string, any>[] = []
     for (const r of records) {
       const wardNum = parseInt(r.ward_number)
       if (isNaN(wardNum)) continue
-      const update: Record<string, any> = {}
-      if (r.ward_councillor !== undefined) update.ward_councillor = r.ward_councillor || null
-      if (r.councillor_party !== undefined) update.councillor_party = r.councillor_party || null
-      if (r.coverage_status !== undefined) update.coverage_status = r.coverage_status || null
-      if (Object.keys(update).length === 0) continue
-      const { error } = await supabase.from('wards').update(update).eq('ward_number', wardNum)
-      if (!error) updated++
+      const row: Record<string, any> = { ward_number: wardNum }
+      if (r.ward_councillor !== undefined) row.ward_councillor = r.ward_councillor || null
+      if (r.councillor_party !== undefined) row.councillor_party = r.councillor_party || null
+      if (r.coverage_status !== undefined) row.coverage_status = r.coverage_status || null
+      if (Object.keys(row).length <= 1) continue // only ward_number, nothing to update
+      rows.push(row)
     }
-    toast.success(`${updated} wards updated`)
+    if (rows.length === 0) { toast.error('No valid rows found in CSV'); return }
+    const res = await fetch('/api/admin/wards/upsert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wards: rows }),
+    })
+    if (!res.ok) { const d = await res.json(); toast.error('Upload failed: ' + (d.error || res.status)); return }
+    toast.success(`${rows.length} wards updated`)
     load()
   }
 

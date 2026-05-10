@@ -115,15 +115,23 @@ export default function MlasTab() {
     let val: any = editValue.trim() || null
     if (f?.numeric) val = editValue === '' ? null : parseInt(editValue)
     if (f?.isMp) val = editValue || null
-    const { error } = await supabase.from('mla').update({ [field]: val }).eq('id', id)
-    if (error) toast.error('Save failed')
+    const res = await fetch('/api/admin/mlas/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, [field]: val }),
+    })
+    if (!res.ok) toast.error('Save failed')
     else { toast.success('MLA updated'); setMlas(p => p.map(m => m.id === id ? { ...m, [field]: val } : m)) }
     setEditCell(null)
   }
 
   async function toggleActive(mla: MLA) {
-    const { error } = await supabase.from('mla').update({ is_active: !mla.is_active }).eq('id', mla.id)
-    if (error) { toast.error('Update failed'); return }
+    const res = await fetch('/api/admin/mlas/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: mla.id, is_active: !mla.is_active }),
+    })
+    if (!res.ok) { toast.error('Update failed'); return }
     setMlas(p => p.map(m => m.id === mla.id ? { ...m, is_active: !mla.is_active } : m))
     toast.success(mla.is_active ? 'MLA deactivated' : 'MLA reactivated')
   }
@@ -132,29 +140,41 @@ export default function MlasTab() {
     if (!newMla.name_en?.trim() || !newMla.constituency_en?.trim()) {
       toast.error('Name (EN) and Constituency are required'); return
     }
-    const { error } = await supabase.from('mla').insert({
-      name_en: newMla.name_en.trim(), name_te: newMla.name_te || null,
-      party: newMla.party || null, constituency_en: newMla.constituency_en.trim(),
-      constituency_te: newMla.constituency_te || null,
-      assembly_seat_number: newMla.assembly_seat_number ? parseInt(newMla.assembly_seat_number) : null,
-      mp_id: newMla.mp_id || null,
-      phone: newMla.phone || null, email: newMla.email || null,
+    const res = await fetch('/api/admin/mlas/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name_en: newMla.name_en.trim(), name_te: newMla.name_te || null,
+        party: newMla.party || null, constituency_en: newMla.constituency_en.trim(),
+        constituency_te: newMla.constituency_te || null,
+        assembly_seat_number: newMla.assembly_seat_number ? parseInt(newMla.assembly_seat_number) : null,
+        mp_id: newMla.mp_id || null,
+        phone: newMla.phone || null, email: newMla.email || null,
+      }),
     })
-    if (error) { toast.error('Add failed: ' + error.message); return }
+    if (!res.ok) { const d = await res.json(); toast.error('Add failed: ' + (d.error || res.status)); return }
     toast.success('MLA added successfully')
     setAdding(false); setNewMla({ ...EMPTY }); load()
   }
 
   async function deactivateInstead(mla: MLA) {
-    const { error } = await supabase.from('mla').update({ is_active: false }).eq('id', mla.id)
-    if (error) { toast.error('Update failed'); return }
+    const res = await fetch('/api/admin/mlas/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: mla.id, is_active: false }),
+    })
+    if (!res.ok) { toast.error('Update failed'); return }
     setMlas(p => p.map(m => m.id === mla.id ? { ...m, is_active: false } : m))
     toast.success('MLA deactivated'); setDeleteConfirm(null)
   }
 
   async function confirmDelete(mla: MLA) {
-    const { error } = await supabase.from('mla').delete().eq('id', mla.id)
-    if (error) { toast.error('Delete failed: ' + error.message); return }
+    const res = await fetch('/api/admin/mlas/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: mla.id }),
+    })
+    if (!res.ok) { const d = await res.json(); toast.error('Delete failed: ' + (d.error || res.status)); return }
     setMlas(p => p.filter(m => m.id !== mla.id))
     toast.success('MLA deleted'); setDeleteConfirm(null)
   }
@@ -162,8 +182,12 @@ export default function MlasTab() {
   async function applyBulkParty() {
     if (!bulkParty || selectedIds.size === 0) return
     const ids = Array.from(selectedIds)
-    const { error } = await supabase.from('mla').update({ party: bulkParty }).in('id', ids)
-    if (error) { toast.error('Bulk update failed'); return }
+    const res = await fetch('/api/admin/mlas/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, party: bulkParty }),
+    })
+    if (!res.ok) { toast.error('Bulk update failed'); return }
     setMlas(p => p.map(m => selectedIds.has(m.id) ? { ...m, party: bulkParty } : m))
     toast.success(`Party updated for ${ids.length} MLAs`)
     setSelectedIds(new Set()); setShowBulkPanel(false); setBulkParty('')
