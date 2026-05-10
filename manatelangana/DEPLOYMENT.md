@@ -106,15 +106,14 @@ Test these on your phone:
 
 ---
 
-## STEP 6 — Change Admin Password (2 mins)
+## STEP 6 — Set Admin Password (2 mins)
 
-The default password is `ManaTelangana@2026`
+Set `ADMIN_PASSWORD` to a strong unique password of your choice.
 
-To change it:
+To set it:
 1. Go to Vercel → your project → Settings → Environment Variables
-2. Find `NEXT_PUBLIC_ADMIN_PASSWORD`
-3. Change to your own secure password
-4. Click Save → Redeploy
+2. Add `ADMIN_PASSWORD` with a strong unique password
+3. Click Save → Redeploy
 
 ---
 
