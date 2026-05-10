@@ -84,6 +84,8 @@ export default function ReportPage() {
   const [submitted, setSubmitted] = useState(false)
   const [isTest, setIsTest] = useState(false)
   const [wardOutOfRange, setWardOutOfRange] = useState(false)
+  const [honeypot, setHoneypot] = useState('')
+  const [cooldownSecs, setCooldownSecs] = useState(0)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -96,6 +98,23 @@ export default function ReportPage() {
       if (wardData) setWards(wardData)
     }
     load()
+  }, [])
+
+  // Fix 7: enforce a 2-minute cooldown between submissions (client-side)
+  useEffect(() => {
+    const last = localStorage.getItem('last_submission_at')
+    if (!last) return
+    const elapsed = Math.floor((Date.now() - parseInt(last)) / 1000)
+    const remaining = 120 - elapsed
+    if (remaining <= 0) return
+    setCooldownSecs(remaining)
+    const timer = setInterval(() => {
+      setCooldownSecs(s => {
+        if (s <= 1) { clearInterval(timer); return 0 }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
   }, [])
 
   const mandalGroups = wards.reduce<Record<string, Ward[]>>((acc, ward) => {
@@ -145,6 +164,8 @@ export default function ReportPage() {
   }
 
   async function handleSubmit() {
+    // Fix 6: honeypot check — bots fill hidden fields, humans never see them
+    if (honeypot) return
     if (!selectedIssue) { toast.error('Please select an issue type'); return }
     if (!selectedWard && !detectedWard && lat === null) { toast.error('Please select or detect your location'); return }
     if (!photo) { toast.error('Please add a photo as evidence'); return }
@@ -170,6 +191,7 @@ export default function ReportPage() {
       } as any)
 
       if (error) throw error
+      localStorage.setItem('last_submission_at', String(Date.now()))
       setSubmitted(true)
     } catch (err) {
       console.error(err)
@@ -442,14 +464,29 @@ export default function ReportPage() {
           </div>
         </label>
 
+        {/* Fix 6: honeypot — invisible to humans, filled by bots */}
+        <input
+          type="text"
+          name="website"
+          value={honeypot}
+          onChange={e => setHoneypot(e.target.value)}
+          style={{ display: 'none' }}
+          tabIndex={-1}
+          autoComplete="off"
+        />
+
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          disabled={submitting}
+          disabled={submitting || cooldownSecs > 0}
           className="btn-primary w-full py-4 text-base flex items-center justify-center gap-2"
         >
           {submitting ? <Loader2 size={18} className="animate-spin" /> : '📤'}
-          {submitting ? t('report_submitting') : t('report_submit')}
+          {submitting
+            ? t('report_submitting')
+            : cooldownSecs > 0
+            ? `Please wait ${cooldownSecs}s before submitting again`
+            : t('report_submit')}
         </button>
 
         <p className="text-center text-xs text-slate-400 mt-3">
