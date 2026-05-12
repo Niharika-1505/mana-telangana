@@ -61,9 +61,11 @@ export async function POST(request: Request) {
   }
 
   // Correct password — clear the attempt record
-  failedAttempts.delete(ip)
+  if (failedAttempts.has(ip)) {
+    failedAttempts.delete(ip)
+  }
 
-  cookies().set('admin_session', 'authenticated', {
+  (await cookies()).set('admin_session', 'authenticated', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',

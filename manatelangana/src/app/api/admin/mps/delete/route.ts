@@ -3,7 +3,7 @@ import { requireAdmin } from '../../_auth'
 import supabaseAdmin from '@/lib/supabase-admin'
 
 export async function POST(request: Request) {
-  const denied = requireAdmin()
+  const denied = await requireAdmin()
   if (denied) return denied
 
   const { id } = await request.json()

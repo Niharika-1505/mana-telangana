@@ -12,7 +12,14 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 })
 
 module.exports = withPWA({
-  images: { domains: ['res.cloudinary.com'] },
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+    ],
+  },
+  turbopack: {
+    resolveAlias: { '@': path.resolve(__dirname, 'src') },
+  },
   webpack: (config) => {
     config.resolve.alias['@'] = path.resolve(__dirname, 'src')
     return config
