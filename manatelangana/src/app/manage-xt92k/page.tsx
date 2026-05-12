@@ -47,6 +47,8 @@ export default function AdminPage() {
         body: JSON.stringify({ password }),
       })
       if (res.ok) { setAuthed(true); loadSharedData() }
+      else if (res.status === 500) alert('Server error: ADMIN_PASSWORD env var not set in Vercel.')
+      else if (res.status === 429) alert('Too many attempts. Try again in 15 minutes.')
       else alert('Wrong password')
     } finally {
       setLoginLoading(false)

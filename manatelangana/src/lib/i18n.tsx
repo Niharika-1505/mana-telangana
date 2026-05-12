@@ -21,13 +21,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>('te')
 
   useEffect(() => {
-    const saved = localStorage.getItem('lang')
+    const saved = sessionStorage.getItem('lang')
     if (saved === 'en' || saved === 'te' || saved === 'hi') setLangState(saved)
   }, [])
 
   function setLang(l: Lang) {
     setLangState(l)
-    localStorage.setItem('lang', l)
+    sessionStorage.setItem('lang', l)
   }
 
   const t = (key: TKey) => T[key][lang]

@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   }
 
   const { password } = await request.json()
-  const adminPassword = process.env.ADMIN_PASSWORD
+  const adminPassword = process.env.ADMIN_PASSWORD || process.env.NEXT_PUBLIC_ADMIN_PASSWORD
   if (!adminPassword) {
     return NextResponse.json(
       { error: 'Server misconfigured' },
