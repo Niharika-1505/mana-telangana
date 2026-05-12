@@ -17,8 +17,9 @@ function getClient(): SupabaseClient {
   return _client
 }
 
-// Lazy proxy — defers client creation to first use at request time.
-// Prevents build-time failures when env vars are not available locally.
+// Lazy proxy needed because SUPABASE_SERVICE_ROLE_KEY is a runtime-only env var.
+// Turbopack evaluates this module at build time; direct createClient() would fail
+// with "supabaseUrl is required" since the var is undefined in the build environment.
 const supabaseAdmin = new Proxy({} as SupabaseClient, {
   get(_: SupabaseClient, prop: string | symbol) {
     const client = getClient()

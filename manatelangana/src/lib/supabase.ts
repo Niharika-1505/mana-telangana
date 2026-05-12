@@ -1,27 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
-import type { SupabaseClient } from '@supabase/supabase-js'
 
-let _client: SupabaseClient | undefined
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-function getClient(): SupabaseClient {
-  if (!_client) {
-    _client = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-  }
-  return _client
-}
-
-// Lazy proxy — defers client creation to first use at request time.
-// Prevents build-time failures when env vars are not available locally.
-export const supabase = new Proxy({} as SupabaseClient, {
-  get(_: SupabaseClient, prop: string | symbol) {
-    const client = getClient()
-    const value = (client as any)[prop]
-    return typeof value === 'function' ? value.bind(client) : value
-  },
-})
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export type Report = {
   id: string
