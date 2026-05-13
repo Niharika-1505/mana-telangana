@@ -11,7 +11,7 @@ type MLA = {
   party: string | null
   constituency_en: string
   constituency_te: string | null
-  assembly_seat_number: number | null
+  constituency_number: number | null
   phone: string | null
   email: string | null
   mp_id: string | null
@@ -43,7 +43,7 @@ const FIELDS: { key: keyof MLA; label: string; numeric?: boolean; isParty?: bool
   { key: 'party',                label: 'Party',             isParty: true },
   { key: 'constituency_en',      label: 'Constituency (EN)' },
   { key: 'constituency_te',      label: 'Constituency (TE)', isTe: true },
-  { key: 'assembly_seat_number', label: 'Assembly #',        numeric: true },
+  { key: 'constituency_number',  label: 'Assembly #',        numeric: true },
   { key: 'mp_id',                label: 'MP',                isMp: true },
   { key: 'phone',                label: 'Phone' },
   { key: 'email',                label: 'Email' },
@@ -147,7 +147,7 @@ export default function MlasTab() {
         name_en: newMla.name_en.trim(), name_te: newMla.name_te || null,
         party: newMla.party || null, constituency_en: newMla.constituency_en.trim(),
         constituency_te: newMla.constituency_te || null,
-        assembly_seat_number: newMla.assembly_seat_number ? parseInt(newMla.assembly_seat_number) : null,
+        constituency_number: newMla.constituency_number ? parseInt(newMla.constituency_number) : null,
         mp_id: newMla.mp_id || null,
         phone: newMla.phone || null, email: newMla.email || null,
       }),
