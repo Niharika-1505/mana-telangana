@@ -211,7 +211,7 @@ export default function WardMembersTab() {
   }
 
   async function addWard() {
-    if (!newWard.ward_number || !newWard.ward_name_en.trim() || !newWard.ward_name_te.trim()) {
+    if (!newWard.ward_number || parseInt(newWard.ward_number) <= 0 || !newWard.ward_name_en.trim() || !newWard.ward_name_te.trim()) {
       toast.error('Ward number, Name (EN), and Name (TE) are required')
       return
     }
