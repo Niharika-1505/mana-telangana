@@ -271,6 +271,11 @@ export default function ReportDetailModal({ report, onClose }: Props) {
               </button>
             </div>
           )}
+          <a href={`/report/${report.id}`}
+             target="_blank"
+             className="text-sm text-green-600 hover:underline mt-2 inline-block">
+            Open full page →
+          </a>
         </div>
       </div>
     </>

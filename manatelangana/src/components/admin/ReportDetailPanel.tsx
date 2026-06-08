@@ -195,6 +195,11 @@ export default function ReportDetailPanel({ report, onClose, onStatusChange }: P
               <span className="text-slate-400">ID</span>
               <span className="text-slate-400 font-mono text-xs truncate max-w-[60%]">{report.id}</span>
             </div>
+            <a href={`/report/${report.id}`}
+               target="_blank"
+               className="text-sm text-green-600 hover:underline">
+              View public page →
+            </a>
           </div>
 
           {/* Community verifications */}
